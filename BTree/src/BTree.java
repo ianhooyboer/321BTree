@@ -38,8 +38,8 @@ public class BTree {
 	private RandomAccessFile randomAF;
 	
 	// -------------------Constructor-------------------
-	public BTree(int degree) {
-		
+	public BTree(int degree, String filename) {
+		//Root offset is 0
 	}
 	
 	// -------------------Methods-------------------

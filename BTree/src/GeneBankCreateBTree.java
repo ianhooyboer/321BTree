@@ -32,6 +32,20 @@ public class GeneBankCreateBTree {
 	private static final int MAX_SEQUENCE = 31;
 	
 	public static void main(String[] args) {
+		// Process Arguments
 		
+		// Create parser(filename, subSequenceLength)
+		
+		// Create BTree(degree, filename)
+	}
+	
+	//IN-CLASS
+	public DNAParser() {
+		BTree b = new BTree(3, filename);
+		
+		while(key = getNextSubSequence) {
+			b.insert(key);
+		}
+		//Close file
 	}
 }
