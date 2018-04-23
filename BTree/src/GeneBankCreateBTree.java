@@ -32,6 +32,8 @@ public class GeneBankCreateBTree {
 	private static final int MAX_SEQUENCE = 31;
 	
 	public static void main(String[] args) {
+		//test
+		
 		// Process Arguments
 		
 		// Create parser(filename, subSequenceLength)
