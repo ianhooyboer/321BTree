@@ -39,6 +39,4 @@ public class GeneBankCreateBTree {
 		
 		// Create BTree(degree, filename)
 	}
-	
-	//DNAParser class written
 }

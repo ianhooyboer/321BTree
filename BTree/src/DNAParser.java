@@ -29,7 +29,8 @@ public class DNAParser {
 		try {
 			this.scan = new Scanner(gbkfile);
 		} catch (FileNotFoundException e) {
-			System.err.println("File: " + gbkfile.getName() + " not found.");
+			e.printStackTrace(System.err);
+			System.err.println("\nFile: " + gbkfile.getName() + " not found.");
 			System.exit(-1);
 		}
 		this.populateSSs();

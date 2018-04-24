@@ -23,7 +23,8 @@ public class GeneBankSearch {
 	private int filename;
 	
 	// Create class
-	BTree myBTree = new BTree(filename, degree);  // get degree and subsequence length from BTree file 
+	BTree myBTree = new BTree(filename, degree);  
+							  // get degree and subsequence length from BTree file 
 							  // - write degree as first int in file or first item in node = degree
 							  // subsequence length - check length of first subsequence.  subLength should be same
 							  // in meta file, query file
