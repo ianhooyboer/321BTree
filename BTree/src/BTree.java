@@ -40,7 +40,12 @@ public class BTree {
 	private File file;
 	private RandomAccessFile randomAF;
 
-	// -------------------Constructor-------------------
+	/**
+	 * Standard constructor for BTree object
+	 * 
+	 * @param degree - degree to be used during construction of BTree
+	 * @param filename - filename to be read from and written to
+	 */
 	public BTree(int degree, String filename) {
 		this.offsetFromRoot = 0; // Root offset is 0
 		this.degree = degree;
@@ -60,7 +65,13 @@ public class BTree {
 
 	}
 
-	// -------------------Methods-------------------
+	/**
+	 * Creates a new BTree node using a file offset set to the current end of file 
+	 * 
+	 * @param randomAF - file to be written to
+	 * @param degree - degree of current BTree to be stored
+	 * @return new BTree node with stored fileoffset
+	 */
 	public BTreeNode createBTreeNode(RandomAccessFile randomAF, int degree) {
 		BTreeNode res = new BTreeNode(degree);
 		long fileoffset = 0;
@@ -72,8 +83,13 @@ public class BTree {
 		}
 		
 		res.setFileOffset(fileoffset);
-		writeNode(res, fileoffset);
 		
+		try {
+			writeNode(res, fileoffset);
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}		
 		
 		return res;
 	}
@@ -180,9 +196,16 @@ public class BTree {
 		x.addKeyToRear(y.getKey(degree));
 
 		x.setNumKeys(x.getNumKeys() + 1);
-		writeNode(y, y.getFileOffset());
-		writeNode(z, z.getFileOffset());
-		writeNode(x, x.getFileOffset());
+		
+		try {
+			writeNode(y, y.getFileOffset());
+			writeNode(z, z.getFileOffset());
+			writeNode(x, x.getFileOffset());
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}
+		
 	}
 
 	/**
@@ -196,8 +219,10 @@ public class BTree {
 	 * @param key
 	 *            - key within the node
 	 */
-	public void insertNF(BTreeNode x, long key) {
-
+	public void insertNF(BTreeNode x, long key) { //insert at not-full node
+		//TODO remove reference if written without using code from textbook
+		
+		
 	}
 
 	/**
@@ -216,15 +241,28 @@ public class BTree {
 	/**
 	 * Writes data from node to disk
 	 * 
-	 * @param x
+	 * @param node
 	 *            - node within the BTree
-	 * @param l
+	 * @param fileoffset
 	 *            - offset from root
+	 * @throws IOException 
 	 */
-	public void writeNode(BTreeNode x, long l) {
-
+	public void writeNode(BTreeNode node, long fileoffset) throws IOException {
+		randomAF.seek(fileoffset);
+		
+		for (TreeObject obj : node.getKeys()) {
+			randomAF.writeLong(obj.getData());
+		}
+		
+		for (Long childOffset : node.getChildren()) {
+			randomAF.writeLong(childOffset);
+		}
 	}
 
+	/**
+	 * Overrides standard toString() method.  Used for testing to see contents of BTree.
+	 * 
+	 */
 	@Override
 	public String toString() {
 		String buf = "";

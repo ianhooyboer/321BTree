@@ -37,6 +37,11 @@ public class DNAParser {
 		this.ssCounter = 0;
 	}
 
+	/**
+	 * Helper method to populate a set with acceptable characters.
+	 * 
+	 * @param s - Set to use for comparison
+	 */
 	private void initACTG(Set<Character> s) {
 		s.add('a');
 		s.add('c');
@@ -44,7 +49,11 @@ public class DNAParser {
 		s.add('g');
 	}
 
-	private void populateSSs() { // populate subsequences?
+	/**
+	 * Helper method that uses Queues to tokenize file input and store ArrayList of subsequences
+	 * 
+	 */
+	private void populateSSs() {
 		String dummy = "";
 
 		while (!dummy.equals("ORIGIN      ")) { // skip header first
@@ -82,7 +91,11 @@ public class DNAParser {
 		}
 	}
 
-	//returns the next subseq if the parser has more, otherwise returns -1
+	/**
+	 * returns next subsequence from DNAParser's stored list of sequences.
+	 * 
+	 * @return the next subseq if the parser has more, otherwise returns -1
+	 */
 	public long nextSubSeq() {
 		long subSeq = -1;
 		
@@ -126,8 +139,8 @@ public class DNAParser {
 
 	/**
 	 * Converts binary key into string
-	 * @param sequence to convert
-	 * @param seqLength - length of sequence
+	 * @param key - long value to convert
+	 * @param k - length of sequence
 	 * @return converted string
 	 */
 	public String longToSubSequence(long key, int k) {
