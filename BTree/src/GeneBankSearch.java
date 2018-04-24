@@ -36,11 +36,4 @@ public class GeneBankSearch {
 	/*  For-each subsequence
 	 *  if(BTree.find(subSequence) {print freq and data;}
 	*/
-	
-	
-	
-	// -------------------Methods-------------------
-	//convert to key written in DNAParser
-	
-	//long to subsequence written in DNAParser
 }
