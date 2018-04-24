@@ -93,6 +93,11 @@ public class DNAParser {
 		return subSeq;
 	}
 
+	/**
+	 * Converts string to binary key
+	 * @param string to convert
+	 * @return converted key
+	 */
 	public long convertToKey(String data) {
 		long key = 0;
 		long tbits = 0b00;
@@ -118,6 +123,12 @@ public class DNAParser {
 		return key;
 	}
 
+	/**
+	 * Converts binary key into string
+	 * @param sequence to convert
+	 * @param seqLength - length of sequence
+	 * @return converted string
+	 */
 	public String longToSubSequence(long key, int k) {
 		String res = "";
 

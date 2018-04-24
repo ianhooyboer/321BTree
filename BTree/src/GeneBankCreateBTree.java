@@ -40,13 +40,5 @@ public class GeneBankCreateBTree {
 		// Create BTree(degree, filename)
 	}
 	
-	//IN-CLASS
-	public DNAParser() {
-		BTree b = new BTree(3, filename);
-		
-		while(key = getNextSubSequence) {
-			b.insert(key);
-		}
-		//Close file
-	}
+	//DNAParser class written
 }
