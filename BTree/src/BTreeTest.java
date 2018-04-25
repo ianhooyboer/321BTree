@@ -1,12 +1,14 @@
+import java.io.File;
 import java.io.IOException;
 
 public class BTreeTest {
 
 	public static void main(String[] args) {
 		String filename = "myTest.txt";
-		int degree = 3;
+		File file = new File(filename);
+		int degree = 4;
 
-		BTree myBTree = new BTree(degree, filename); // tests constructor
+		BTree myBTree = new BTree(degree, file); // tests constructor
 
 		try {
 			myBTree.insert(3); // test inserting a key into BTree
@@ -14,7 +16,7 @@ public class BTreeTest {
 			myBTree.insert(2);
 			myBTree.insert(2); // tests incrementing frequency instead of adding a duplicate node
 			
-//			myBTree.insert(5); // beginning to test splitTree
+			myBTree.insert(5); // beginning to test splitTree
 
 		} catch (IOException e) {
 			e.printStackTrace();

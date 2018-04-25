@@ -37,7 +37,6 @@ public class GeneBankCreateBTree {
 	// Process Arguments (we will assume that cache is implemented for now)
 	int degree = Integer.parseInt(args[1]);
 	File filename = new File(args[2]);
-	String nameOfFile = args[2];	//This is necessary in order to make the file name usable by both DNAParser and BTree
 	int subSequenceLength = Integer.parseInt(args[3]);
 	long cacheSize = Long.parseLong(args[4]);
 	long debugLevel = Long.parseLong(args[5]);
@@ -46,6 +45,6 @@ public class GeneBankCreateBTree {
 	DNAParser myParser = new DNAParser(filename, subSequenceLength);
 	
 	// Create BTree(degree, filename)
-	BTree myBTree = new BTree(degree, nameOfFile);
+	BTree myBTree = new BTree(degree, filename);
 	}
 }

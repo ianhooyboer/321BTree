@@ -49,10 +49,10 @@ public class BTree {
 	 * @param filename
 	 *            - filename to be read from and written to
 	 */
-	public BTree(int degree, String filename) {
+	public BTree(int degree, File filename) {
 		this.offsetFromRoot = 0; // Root offset is 0
 		this.degree = degree;
-		this.file = new File(filename);
+		this.file = filename;
 
 		clearFile(file);
 		
@@ -206,7 +206,7 @@ public class BTree {
 		y.setNumKeys(degree - 1);
 		x.setNumKeys(x.getNumKeys() + 1);
 
-		for (int j = x.getNumKeys(); j < i + 1; j--) { //getting stuck in infinite here
+		for (int j = x.getNumKeys(); j < i; j--) { //getting stuck in infinite here
 			x.addChildToRear(j);
 			System.out.println(this);
 		}
@@ -246,7 +246,7 @@ public class BTree {
 		// TODO write unit test(s)
 		
 		TreeObject isPresent = null;
-		if (node.getNumKeys() != 0) {
+		if (node.getNumKeys() != 0 && node.getNumKeys() < (2 * node.getDegree() - 1)) { //TODO broken, wip
 			isPresent = keySearch(node, key);
 		}
 		
