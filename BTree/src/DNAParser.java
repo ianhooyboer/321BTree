@@ -1,3 +1,11 @@
+/**
+ * CS 321 B-Tree Project Spring 2018
+ * 
+ * DNAParser parses subsequences from gbk files
+ * 
+ * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
+ */
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayDeque;

@@ -1,3 +1,11 @@
+/**
+ * CS 321 B-Tree Project Spring 2018
+ * 
+ * BTreeTest class tests functionality
+ * 
+ * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
+ */
+
 import java.io.File;
 import java.io.IOException;
 

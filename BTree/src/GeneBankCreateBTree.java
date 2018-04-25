@@ -1,4 +1,3 @@
-import java.io.File;
 /**
  * CS 321 B-Tree Project Spring 2018
  * 
@@ -21,7 +20,9 @@ import java.io.File;
  */
 
 // -------------------Libraries-------------------
+import java.io.File;
 
+// Functions
 public class GeneBankCreateBTree {
 	
 	// -------------------Variables-------------------
