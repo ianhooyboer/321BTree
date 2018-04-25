@@ -99,7 +99,11 @@ public class BTreeNode {
 
 	// -------------------Methods-------------------
 	public boolean isLeaf() {
-		return isLeaf;
+		if (this.children.isEmpty()) {
+			return true;
+		}else {
+			return false;
+		}
 	}
 
 	// Children nodes
@@ -120,7 +124,7 @@ public class BTreeNode {
 		keys.add(k);
 	}
 
-	public void addKeyAtNode(TreeObject ke, int k) {
+	public void addKeyAtNode(int k, TreeObject ke) {
 		keys.add(k, ke);
 	}
 
@@ -134,9 +138,13 @@ public class BTreeNode {
 		
 		buf += "*** ***\n";
 		buf += "Node: " + fileOffset + "\n";
-		buf += "Keys: " + keys.toString() + "\n";
+		
+		buf += "Keys: [ ";
+		for (TreeObject k : keys) { buf += k.getData() + " ";}
+		buf += " ]\n";
+		
 		buf += "--- ---\n";
-		buf += "Children " + children.toString() +"\n";
+		buf += "Children " + children.toString() +"\n"; //TODO broken, fix like above
 		buf += "*** ***\n";
 		
 		return buf;

@@ -106,7 +106,7 @@ public class BTree {
 	 *            - key within the node
 	 * @return keySearch
 	 */
-	public TreeObject keySearch(BTreeNode x, long k) {
+	public TreeObject keySearch(BTreeNode x, long k) { //TODO not tested
 		int i = 0;
 		TreeObject key = new TreeObject(k);
 
@@ -135,8 +135,9 @@ public class BTree {
 	 * 
 	 * @param key
 	 *            - key within the node
+	 * @throws IOException 
 	 */
-	public void insert(long key) {
+	public void insert(long key) throws IOException {//TODO not tested
 		BTreeNode r = root;
 
 		if (r.getNumKeys() == ((2 * degree) - 1)) {
@@ -163,7 +164,7 @@ public class BTree {
 	 * @param i
 	 *            - child to split
 	 */
-	public void splitTree(BTreeNode x, int i) {
+	public void splitTree(BTreeNode x, int i) { //TODO not tested
 		BTreeNode z = new BTreeNode(degree);
 		BTreeNode y = new BTreeNode(degree);
 
@@ -214,13 +215,37 @@ public class BTree {
 	 * Reference: Cormen, T. H., et al. 2009. Introduction to Algorithms (3rd
 	 * edition). 496. MIT Press and McGraw-Hill. ISBN 0-262-03384-4.
 	 * 
-	 * @param x
+	 * @param node
 	 *            - node within the BTree
 	 * @param key
 	 *            - key within the node
+	 * @throws IOException 
 	 */
-	public void insertNF(BTreeNode x, long key) { //insert at not-full node
-		//TODO remove reference if written without using code from textbook
+	public void insertNF(BTreeNode node, long key) throws IOException {
+		//TODO test
+		
+		//TODO check to see if key is already present in tree first
+		
+		if (node.isLeaf()) { //if node is a leaf
+			//add the key at the correctly sorted position
+			int pos = 0;
+			if (!node.getKeys().isEmpty()) {
+				for (TreeObject obj : node.getKeys()) {
+					if (key < obj.getData()) {
+						break;						
+					}else {
+						pos++;
+					}
+				}
+				node.addKeyAtNode(pos, new TreeObject(key));
+			}else {
+				node.addKeyAtNode(0, new TreeObject(key));
+			}
+			writeNode(node, node.getFileOffset());
+			
+		}else { //node not a leaf
+			//TODO implement
+		}
 		
 		
 	}
@@ -233,6 +258,8 @@ public class BTree {
 	 * @return node data
 	 */
 	public BTreeNode readNode(Long fileoffset) {
+		//TODO implement
+		
 		BTreeNode readData = null;
 
 		return readData;
@@ -248,13 +275,14 @@ public class BTree {
 	 * @throws IOException 
 	 */
 	public void writeNode(BTreeNode node, long fileoffset) throws IOException {
+		//TODO broken, writing strange chars to file
 		randomAF.seek(fileoffset);
 		
-		for (TreeObject obj : node.getKeys()) {
+		for (TreeObject obj : node.getKeys()) { //writes the list of keys as Long values
 			randomAF.writeLong(obj.getData());
 		}
 		
-		for (Long childOffset : node.getChildren()) {
+		for (Long childOffset : node.getChildren()) { //writes the list of children's fileoffsets as Long values
 			randomAF.writeLong(childOffset);
 		}
 	}
