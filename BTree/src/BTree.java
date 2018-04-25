@@ -27,6 +27,7 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.util.ArrayDeque;
 
@@ -43,14 +44,18 @@ public class BTree {
 	/**
 	 * Standard constructor for BTree object
 	 * 
-	 * @param degree - degree to be used during construction of BTree
-	 * @param filename - filename to be read from and written to
+	 * @param degree
+	 *            - degree to be used during construction of BTree
+	 * @param filename
+	 *            - filename to be read from and written to
 	 */
 	public BTree(int degree, String filename) {
 		this.offsetFromRoot = 0; // Root offset is 0
 		this.degree = degree;
 		this.file = new File(filename);
 
+		clearFile(file);
+		
 		try {
 
 			this.randomAF = new RandomAccessFile(file, "rw");
@@ -60,40 +65,59 @@ public class BTree {
 			System.err.println("\nFile: " + file.getName() + " not found.");
 			System.exit(-1);
 		}
-		
+
 		root = createBTreeNode(randomAF, degree);
 
 	}
 
 	/**
-	 * Creates a new BTree node using a file offset set to the current end of file 
+	 * zeros out file each time the program is run
 	 * 
-	 * @param randomAF - file to be written to
-	 * @param degree - degree of current BTree to be stored
+	 * @param file
+	 */
+	private void clearFile(File file) {
+		PrintWriter writer = null;
+		try {
+			writer = new PrintWriter(file);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace(System.err);
+			System.exit(-1);
+		}
+		writer.print("");
+		writer.close();		
+	}
+
+	/**
+	 * Creates a new BTree node using a file offset set to the current end of file
+	 * 
+	 * @param randomAF
+	 *            - file to be written to
+	 * @param degree
+	 *            - degree of current BTree to be stored
 	 * @return new BTree node with stored fileoffset
 	 */
 	public BTreeNode createBTreeNode(RandomAccessFile randomAF, int degree) {
 		BTreeNode res = new BTreeNode(degree);
 		long fileoffset = 0;
-		
+
 		try {
 			fileoffset = randomAF.length();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
+
 		res.setFileOffset(fileoffset);
-		
+
 		try {
 			writeNode(res, fileoffset);
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 			System.exit(-1);
-		}		
-		
+		}
+
 		return res;
 	}
-	
+
 	/**
 	 * Searches BTree for a Key.
 	 * 
@@ -106,7 +130,7 @@ public class BTree {
 	 *            - key within the node
 	 * @return keySearch
 	 */
-	public TreeObject keySearch(BTreeNode x, long k) { //TODO not tested
+	public TreeObject keySearch(BTreeNode x, long k) {
 		int i = 0;
 		TreeObject key = new TreeObject(k);
 
@@ -116,13 +140,9 @@ public class BTree {
 
 		if (i <= x.getNumKeys() && key.compareTo(x.getKey(i)) == 0) {
 			return x.getKey(i);
-		}
-
-		else if (x.isLeaf()) {
+		} else if (x.isLeaf()) {
 			return null;
-		}
-
-		else {
+		} else {
 			return keySearch(readNode(x.getChild(i)), k);
 		}
 	}
@@ -135,9 +155,9 @@ public class BTree {
 	 * 
 	 * @param key
 	 *            - key within the node
-	 * @throws IOException 
+	 * @throws IOException
 	 */
-	public void insert(long key) throws IOException {//TODO not tested
+	public void insert(long key) throws IOException {// TODO not tested
 		BTreeNode r = root;
 
 		if (r.getNumKeys() == ((2 * degree) - 1)) {
@@ -164,7 +184,7 @@ public class BTree {
 	 * @param i
 	 *            - child to split
 	 */
-	public void splitTree(BTreeNode x, int i) { //TODO not tested
+	public void splitTree(BTreeNode x, int i) { // TODO not tested
 		BTreeNode z = new BTreeNode(degree);
 		BTreeNode y = new BTreeNode(degree);
 
@@ -186,8 +206,9 @@ public class BTree {
 		y.setNumKeys(degree - 1);
 		x.setNumKeys(x.getNumKeys() + 1);
 
-		for (int j = x.getNumKeys(); j < i + 1; j--) {
+		for (int j = x.getNumKeys(); j < i + 1; j--) { //getting stuck in infinite here
 			x.addChildToRear(j);
+			System.out.println(this);
 		}
 		x.addChildAtNode(z.getFileOffset(), i + 1);
 
@@ -197,7 +218,7 @@ public class BTree {
 		x.addKeyToRear(y.getKey(degree));
 
 		x.setNumKeys(x.getNumKeys() + 1);
-		
+
 		try {
 			writeNode(y, y.getFileOffset());
 			writeNode(z, z.getFileOffset());
@@ -206,7 +227,7 @@ public class BTree {
 			e.printStackTrace(System.err);
 			System.exit(-1);
 		}
-		
+
 	}
 
 	/**
@@ -219,35 +240,44 @@ public class BTree {
 	 *            - node within the BTree
 	 * @param key
 	 *            - key within the node
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void insertNF(BTreeNode node, long key) throws IOException {
-		//TODO test
+		// TODO write unit test(s)
 		
-		//TODO check to see if key is already present in tree first
-		
-		if (node.isLeaf()) { //if node is a leaf
-			//add the key at the correctly sorted position
-			int pos = 0;
-			if (!node.getKeys().isEmpty()) {
-				for (TreeObject obj : node.getKeys()) {
-					if (key < obj.getData()) {
-						break;						
-					}else {
-						pos++;
-					}
-				}
-				node.addKeyAtNode(pos, new TreeObject(key));
-			}else {
-				node.addKeyAtNode(0, new TreeObject(key));
-			}
-			writeNode(node, node.getFileOffset());
-			
-		}else { //node not a leaf
-			//TODO implement
+		TreeObject isPresent = null;
+		if (node.getNumKeys() != 0) {
+			isPresent = keySearch(node, key);
 		}
 		
-		
+		if (isPresent != null) { //increment frequency and be done
+			isPresent.incrementFrequency();
+		} else {
+			if (node.isLeaf()) { // if node is a leaf
+								 // add the key at the correctly sorted position
+				int pos = 0;
+				if (!node.getKeys().isEmpty()) {
+					for (TreeObject obj : node.getKeys()) {
+						if (key < obj.getData()) {
+							break;
+						} else {
+							pos++;
+						}
+					}
+					node.addKeyAtNode(pos, new TreeObject(key));
+				} else {
+					node.addKeyAtNode(0, new TreeObject(key));
+				}
+				writeNode(node, node.getFileOffset());
+
+			} else { // node not a leaf
+				// TODO implement (requires split tree to be working)
+				while (!node.getKeys().isEmpty()) {
+					
+				}
+			}
+		}
+
 	}
 
 	/**
@@ -258,8 +288,8 @@ public class BTree {
 	 * @return node data
 	 */
 	public BTreeNode readNode(Long fileoffset) {
-		//TODO implement
-		
+		// TODO implement
+
 		BTreeNode readData = null;
 
 		return readData;
@@ -272,23 +302,29 @@ public class BTree {
 	 *            - node within the BTree
 	 * @param fileoffset
 	 *            - offset from root
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public void writeNode(BTreeNode node, long fileoffset) throws IOException {
-		//TODO broken, writing strange chars to file
 		randomAF.seek(fileoffset);
-		
-		for (TreeObject obj : node.getKeys()) { //writes the list of keys as Long values
-			randomAF.writeLong(obj.getData());
+
+		for (TreeObject obj : node.getKeys()) { // writes the list of keys as Long values
+			String toWrite = Long.toString(obj.getData());
+			randomAF.write(toWrite.getBytes());
 		}
-		
-		for (Long childOffset : node.getChildren()) { //writes the list of children's fileoffsets as Long values
-			randomAF.writeLong(childOffset);
+
+		for (Long childOffset : node.getChildren()) { // writes the list of children's fileoffsets as Long values
+			String toWrite = Long.toString(childOffset);
+			randomAF.write(toWrite.getBytes());
 		}
 	}
 
+	public BTreeNode getRoot() {
+		return root;
+	}
+
 	/**
-	 * Overrides standard toString() method.  Used for testing to see contents of BTree.
+	 * Overrides standard toString() method. Used for testing to see contents of
+	 * BTree.
 	 * 
 	 */
 	@Override
@@ -296,19 +332,22 @@ public class BTree {
 		String buf = "";
 		ArrayDeque<BTreeNode> myQ = new ArrayDeque<BTreeNode>();
 		myQ.add(root);
-		
-		while(!myQ.isEmpty()) { //breadth-first traversal
+
+		while (!myQ.isEmpty()) { // breadth-first traversal
 			BTreeNode d = myQ.remove();
-			
+
 			for (Long fileoffset : d.getChildren()) {
 				BTreeNode e = readNode(fileoffset);
-				myQ.add(e);
+				
+				if (e != null) {
+					myQ.add(e);
+				}				
 			}
-			
-			buf += d.toString() + "\n"; //returns a linear list of nodes for now
-		}								// will come up with a more 'tree-like' representation
-		
+
+			buf += d.toString() + "\n"; // returns a linear list of nodes for now
+		} // will come up with a more 'tree-like' representation
+
 		return buf;
 	}
-	
+
 }

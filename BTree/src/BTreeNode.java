@@ -126,6 +126,7 @@ public class BTreeNode {
 
 	public void addKeyAtNode(int k, TreeObject ke) {
 		keys.add(k, ke);
+		numKeys++;
 	}
 
 	public TreeObject removeKey(int k) {
@@ -140,11 +141,11 @@ public class BTreeNode {
 		buf += "Node: " + fileOffset + "\n";
 		
 		buf += "Keys: [ ";
-		for (TreeObject k : keys) { buf += k.getData() + " ";}
+		for (TreeObject k : keys) { buf += k.getData() + "(" + k.getFrequency() + ")" + " ";}
 		buf += " ]\n";
 		
 		buf += "--- ---\n";
-		buf += "Children " + children.toString() +"\n"; //TODO broken, fix like above
+		buf += "Children " + children.toString() +"\n"; //TODO wrong, fix like above
 		buf += "*** ***\n";
 		
 		return buf;
