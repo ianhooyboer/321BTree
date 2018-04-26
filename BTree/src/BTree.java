@@ -206,6 +206,7 @@ public class BTree {
 		x.setNumKeys(x.getNumKeys() + 1);
 
 		for (int j = x.getNumKeys(); j < i; j--) { // getting stuck in infinite here
+												   // could this possibly need to be changed to 'j > i' since j is being decremented?
 			x.addChildToRear(j);
 			System.out.println(this);
 		}
