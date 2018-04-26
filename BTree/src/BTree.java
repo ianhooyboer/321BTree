@@ -191,14 +191,14 @@ public class BTree {
 		z.setLeafStatus(y.isLeaf());
 		z.setNumKeys(degree - 1);
 
-		for (int j = 1; j < degree - 1; j++) {
+		for (int j = 0; j < degree - 1; j++) {
 			z.addKeyToRear(y.removeKey(degree));
 			z.setNumKeys(z.getNumKeys() + 1);
 			y.setNumKeys(y.getNumKeys() - 1);
 		}
 
 		if (!y.isLeaf()) {
-			for (int j = 1; j < degree; j++) {
+			for (int j = 0; j < degree; j++) {
 				z.addChildToRear(y.removeChild(degree));
 			}
 		}

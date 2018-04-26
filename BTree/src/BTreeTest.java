@@ -24,7 +24,7 @@ public class BTreeTest {
 			myBTree.insert(2);
 			myBTree.insert(2); // tests incrementing frequency instead of adding a duplicate node
 			
-//			myBTree.insert(5); // beginning to test splitTree
+			myBTree.insert(5); // beginning to test splitTree
 
 		} catch (IOException e) {
 			e.printStackTrace();
