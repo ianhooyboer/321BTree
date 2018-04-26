@@ -28,8 +28,7 @@ public class BTreeNode {
 
 	// -------------------Constructor-------------------
 
-	public BTreeNode(int degree) {
-		this.setDegree(degree);
+	public BTreeNode() {
 		parent = -1;
 		keys = new LinkedList<TreeObject>();
 		children = new LinkedList<Long>();
