@@ -55,7 +55,7 @@ public class BTree {
 		this.file = file;
 
 		clearFile(file);
-		
+
 		try {
 
 			this.randomAF = new RandomAccessFile(file, "rw");
@@ -83,7 +83,7 @@ public class BTree {
 			System.exit(-1);
 		}
 		writer.print("");
-		writer.close();		
+		writer.close();
 	}
 
 	/**
@@ -205,7 +205,7 @@ public class BTree {
 		y.setNumKeys(degree - 1);
 		x.setNumKeys(x.getNumKeys() + 1);
 
-		for (int j = x.getNumKeys(); j < i; j--) { //getting stuck in infinite here
+		for (int j = x.getNumKeys(); j < i; j--) { // getting stuck in infinite here
 			x.addChildToRear(j);
 			System.out.println(this);
 		}
@@ -243,17 +243,17 @@ public class BTree {
 	 */
 	public void insertNF(BTreeNode node, long key) throws IOException {
 		// TODO write unit test(s)
-		
+
 		TreeObject isPresent = null;
-		if (node.getNumKeys() != 0 && node.getNumKeys() < (2 * node.getDegree() - 1)) { //TODO broken, wip
+		if (node.getNumKeys() != 0 && node.getNumKeys() < (2 * node.getDegree() - 1)) { // TODO broken, wip
 			isPresent = keySearch(node, key);
 		}
-		
-		if (isPresent != null) { //increment frequency and be done
+
+		if (isPresent != null) { // increment frequency and be done
 			isPresent.incrementFrequency();
 		} else {
 			if (node.isLeaf()) { // if node is a leaf
-								 // add the key at the correctly sorted position
+									// add the key at the correctly sorted position
 				int pos = 0;
 				if (!node.getKeys().isEmpty()) {
 					for (TreeObject obj : node.getKeys()) {
@@ -272,7 +272,7 @@ public class BTree {
 			} else { // node not a leaf
 				// TODO implement (requires split tree to be working)
 				while (!node.getKeys().isEmpty()) {
-					
+
 				}
 			}
 		}
@@ -289,40 +289,45 @@ public class BTree {
 	public BTreeNode readNode(Long fileOffset) {
 		BTreeNode readData = null;
 		int count = 0;
-		
+
 		readData = new BTreeNode();
 		TreeObject nodeObject = null;
 		readData.setFileOffset(fileOffset);
-		
+
 		try {
 			randomAF.seek(fileOffset);
 			// Set number of keys, parent, and leaf status
 			readData.setNumKeys(randomAF.readInt());
 			readData.setParent(randomAF.readInt());
 			readData.setLeafStatus(randomAF.readBoolean());
-			
+
 			// read nodes from 0 to max keys
-			for(count = 0; count < (2 * degree - 1); count++) {
-				
+			for (count = 0; count < (2 * degree - 1); count++) {
+
 				// If count is less than number of keys in node
-				if(count < readData.getNumKeys()) {
-					
+				if (count < readData.getNumKeys()) {
+
 					// read key data and frequency and add key to rear
 					nodeObject = new TreeObject(randomAF.readLong(), randomAF.readInt());
 					readData.addKeyToRear(nodeObject);
 				}
-				
+
 				// If count is less than number of keys in node and not leaf
-				if(count < readData.getNumKeys() && !readData.isLeaf()) {readData.addChildToRear(randomAF.readLong());}
-				
+				if (count < readData.getNumKeys() && !readData.isLeaf()) {
+					readData.addChildToRear(randomAF.readLong());
+				}
+
 				// If count is greater/equal to number of keys in node or leaf
-				else if(count >= readData.getNumKeys() || readData.isLeaf()) {randomAF.seek(randomAF.getFilePointer() + fileOffset);}
+				else if (count >= readData.getNumKeys() || readData.isLeaf()) {
+					randomAF.seek(randomAF.getFilePointer() + fileOffset);
+				}
 			}
-			
+
 			// If count equals number of keys and is not a leaf
-			if(count == readData.getNumKeys() && !readData.isLeaf()) {readData.addChildToRear(randomAF.readLong());}
-		} 
-		catch (IOException e) {
+			if (count == readData.getNumKeys() && !readData.isLeaf()) {
+				readData.addChildToRear(randomAF.readLong());
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -340,31 +345,36 @@ public class BTree {
 	 */
 	public void writeNode(BTreeNode writeData, long fileoffset) throws IOException {
 		int count = 0;
-		
+
 		try {
 			randomAF.writeLong(writeData.getParent());
-			
+
 			// write nodes from 0 to max keys
-			for(count = 0; count < (2 * degree - 1); count++) {
-				
+			for (count = 0; count < (2 * degree - 1); count++) {
+
 				// If count is less than number of keys in node
-				if(count < writeData.getNumKeys()) {
+				if (count < writeData.getNumKeys()) {
 					// get key data and frequency
 					randomAF.writeLong(writeData.getKey(count).getData());
 					randomAF.writeLong(writeData.getKey(count).getFrequency());
 				}
-				
+
 				// If count is less than number of keys in node and not leaf
-				if(count < writeData.getNumKeys() && !writeData.isLeaf()) {randomAF.writeLong(writeData.getChild(count));}
-				
+				if (count < writeData.getNumKeys() && !writeData.isLeaf()) {
+					randomAF.writeLong(writeData.getChild(count));
+				}
+
 				// If count is greater/equal to number of keys in node or leaf
-				else if(count >= writeData.getNumKeys() || writeData.isLeaf()) {randomAF.writeLong(0);}
+				else if (count >= writeData.getNumKeys() || writeData.isLeaf()) {
+					randomAF.writeLong(0);
+				}
 			}
-			
+
 			// If count equals number of keys and is not a leaf
-			if(count == writeData.getNumKeys() && !writeData.isLeaf()) {randomAF.writeLong(writeData.getChild(count));}
-		} 
-		catch (IOException e) {
+			if (count == writeData.getNumKeys() && !writeData.isLeaf()) {
+				randomAF.writeLong(writeData.getChild(count));
+			}
+		} catch (IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -381,7 +391,7 @@ public class BTree {
 	 */
 	@Override
 	public String toString() {
-		String buf = "";
+		String buf = "\n";
 		ArrayDeque<BTreeNode> myQ = new ArrayDeque<BTreeNode>();
 		myQ.add(root);
 
@@ -390,10 +400,10 @@ public class BTree {
 
 			for (Long fileoffset : d.getChildren()) {
 				BTreeNode e = readNode(fileoffset);
-				
+
 				if (e != null) {
 					myQ.add(e);
-				}				
+				}
 			}
 
 			buf += d.toString() + "\n"; // returns a linear list of nodes for now

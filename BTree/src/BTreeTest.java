@@ -19,22 +19,112 @@ public class BTreeTest {
 		BTree myBTree = new BTree(degree, file); // tests constructor
 
 		try {
-			myBTree.insert(3); // test inserting a key into BTree
-			myBTree.insert(1);
-			myBTree.insert(2);
-			myBTree.insert(2); // tests incrementing frequency instead of adding a duplicate node
-			
-			myBTree.insert(5); // beginning to test splitTree
+			insertToEmptyTreeTest(myBTree, 3); // test inserting a key into BTree
+			insertToTreeTest(myBTree, 1);
+			insertToTreeIncrementTest(myBTree, 1);
+			keySearchTest(myBTree, 3);
 
+		
+		
+		
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		System.out.println(myBTree.toString());
 		
-		boolean kstBool = keySearchTest(myBTree, 3);
-
+		
+		
+		System.out.println(myBTree.toString());
 	}
 
+	/**
+	 * Unit test of insert(), to be called immediately after creating a new BTree
+	 * 
+	 * @param tree the tree to insert into
+	 * @param testVal the value to insert
+	 * @return true if the test succeeds, false otherwise
+	 * @throws IOException 
+	 */
+	static boolean insertToEmptyTreeTest(BTree tree, long testVal) throws IOException {
+		TreeObject insertEmptyExpectedVal = new TreeObject(testVal);
+		
+		tree.insert(testVal);
+		
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertEmptyExpectedVal) == 0 &&
+				tree.getRoot().getNumKeys() == 1) {
+			System.out.println("insertToEmptyTreeTest: PASS");
+			return true;
+		}else if (tree.getRoot().getNumKeys() == 0) {
+			System.out.println("insertToEmptyTreeTest: FAIL - no key inserted");
+			return false;
+		}else{
+			System.out.println("insertToEmptyTreeTest: FAIL - unexpected result");
+			return false;
+		}
+	}
+	
+	/**
+	 * Unit test of insert(), to be called following insertToEmptyTreeTest()
+	 * 
+	 * @param tree the tree to insert into
+	 * @param testVal the value to insert
+	 * @return true if the test succeeds, false otherwise
+	 * @throws IOException
+	 */
+	static boolean insertToTreeTest(BTree tree, long testVal) throws IOException {
+		TreeObject insertExpectedVal = new TreeObject(testVal);
+		
+		tree.insert(testVal);
+		
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertExpectedVal) == 0 &&
+				tree.getRoot().getNumKeys() == 2 &&
+				tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == -1) {
+			System.out.println("insertToTreeTest: PASS");
+			return true;
+		}else if (tree.getRoot().getNumKeys() < 2) {
+			System.out.println("insertToTreeTest: FAIL - key not inserted");
+			return false;
+		}else if (tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == 1) {
+			System.out.println("insertToTreeTest: FAIL - keys not sorted");
+			return false;
+		}else {
+			System.out.println("insertToTreeTest: FAIL - unexpected result");
+			return false;
+		}
+	}
+	
+	/**
+	 * Unit test of insert(), to be called following insertToTreeTest()
+	 * 
+	 * @param tree the tree to insert into
+	 * @param testVal the value to insert
+	 * @return true if the test succeeds, false otherwise
+	 * @throws IOException
+	 */
+	static boolean insertToTreeIncrementTest(BTree tree, long testVal) throws IOException {
+		TreeObject insertIncrementExpectedVal = new TreeObject(testVal);
+		
+		tree.insert(testVal);
+		
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertIncrementExpectedVal) == 0 &&
+				tree.getRoot().getNumKeys() == 2 &&
+				tree.getRoot().getKeys().get(0).getFrequency() == 2 ||
+				tree.getRoot().getKeys().get(1).getFrequency() == 2) {
+			System.out.println("insertToTreeIncrementTest: PASS");
+			return true;
+		}else if (tree.getRoot().getNumKeys() < 2) {
+			System.out.println("insertToTreeIncrementTest: FAIL - one key in node");
+			return false;
+		}else if (tree.getRoot().getNumKeys() == 3 &&
+				tree.getRoot().getKeys().get(0).getFrequency() == 1 &&
+				tree.getRoot().getKeys().get(1).getFrequency() == 1) {
+			System.out.println("insertToTreeIncrementTest: FAIL - key frequency not incremented, duplicate node added");
+			return false;
+		}else {
+			System.out.println("insertToTreeIncrementTest: FAIL - unexpected result");
+			return false;
+		}
+	}
+	
 	/**
 	 * Unit test of keySearchTest
 	 * 
