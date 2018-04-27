@@ -19,6 +19,8 @@ public class GeneBankSearch {
 	private String degree;
 	private int filename;
 	
+	//
+	
 	// Create class
 	//BTree myBTree = new BTree(filename, degree);  
 							  // get degree and subsequence length from BTree file 
