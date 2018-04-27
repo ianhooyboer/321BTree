@@ -23,6 +23,7 @@ public class BTreeNode {
 	private int offset;
 	private int parent;
 	private int degree;
+	private int ssLength;
 	private LinkedList<Long> children;
 	private LinkedList<TreeObject> keys;
 
@@ -94,6 +95,14 @@ public class BTreeNode {
 
 	public void setDegree(int degree) {
 		this.degree = degree;
+	}
+	
+	public int getSubSequenceLength() {
+		return ssLength;
+	}
+	
+	public void setSSLength(int ssLength) {
+		this.ssLength = ssLength;
 	}
 
 	// -------------------Methods-------------------
