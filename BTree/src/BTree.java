@@ -371,6 +371,41 @@ public class BTree {
 	public void insertNF(BTreeNode node, long key) throws IOException {
 		// TODO write unit test(s)
 
+		// set int i to node.number of keys
+		
+		// if x is a leaf node
+		
+			// while i >= 1 && key < node.key at i
+		
+				// node.key at i + 1 = node.key at i
+		
+				// i = i - 1
+		
+			// node.key at i + 1 = key
+		
+			// number of keys in node increment by 1
+		
+			// writeNode(node, at offset)
+		
+		//else while i >= 1 and key < node.key at i (case for node not being leaf)
+			
+				// i = i - 1
+		
+			// i = i + 1
+		
+			// readNode(child of node)
+			
+			// if amount of keys in child node == 2t - 1
+				
+				// splitTree(node, i, child node)
+				
+				// if key > key of node at i
+		
+					// i = i + 1
+			
+			// insertNF(child node, key)
+		
+		
 		TreeObject isPresent = null;
 		if (node.getNumKeys() != 0 && node.getNumKeys() < (2 * node.getDegree() - 1)) { // TODO broken, wip
 			isPresent = keySearch(node, key);
