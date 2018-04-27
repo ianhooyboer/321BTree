@@ -15,8 +15,10 @@ public class BTreeTest {
 		String filename = "myTest.txt";
 		File file = new File(filename);
 		int degree = 4;
+		boolean useCache = false;
+		int cacheSize = 0;
 
-		BTree myBTree = new BTree(degree, file); // tests constructor
+		BTree myBTree = new BTree(degree, file, useCache, cacheSize); // tests constructor
 
 		try {
 			insertToEmptyTreeTest(myBTree, 3); // test inserting a key into BTree

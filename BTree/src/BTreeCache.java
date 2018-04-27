@@ -57,7 +57,7 @@ public class BTreeCache implements Iterable<BTreeNode>{
 		for(BTreeNode retVal : nodeList) {
 			
 			// if offset matches
-			if(retVal.getFileOffset() == offset) {
+			if(retVal.getOffset() == offset) {
 				
 				// remove retVal from within cache, add it to front of cache and increment hits
 				nodeList.remove(retVal);

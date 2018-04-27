@@ -11,9 +11,6 @@
  * The maximum length of sequence (when using 2-bit conversion into binary) is 31 ((64 bits / 2) - 1).
  * 
  * Usage is as follows:
- * java GeneBankCreateBTree <degree> <gbk file> <sequence length> [<debug level>]
- * 
- * With cache option:
  * java GeneBankCreateBTree <0/1(no/with Cache)> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
  * 
  * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
@@ -36,16 +33,25 @@ public class GeneBankCreateBTree {
 	public static void main(String[] args) {
 		
 	// Process Arguments (we will assume that cache is implemented for now)
-	int degree = Integer.parseInt(args[1]);
-	File filename = new File(args[2]);
-	int subSequenceLength = Integer.parseInt(args[3]);
-	long cacheSize = Long.parseLong(args[4]);
-	long debugLevel = Long.parseLong(args[5]);
+	boolean useCache = false;
+	
+	int cache = Integer.parseInt(args[1]);
+	int degree = Integer.parseInt(args[2]);
+	File filename = new File(args[3]);
+	int subSequenceLength = Integer.parseInt(args[4]);
+	int cacheSize = Integer.parseInt(args[5]);
+	int debugLevel = Integer.parseInt(args[6]);
 		
 	// Create parser(filename, subSequenceLength)
 	DNAParser myParser = new DNAParser(filename, subSequenceLength);
 	
-	// Create BTree(degree, filename)
-	BTree myBTree = new BTree(degree, filename);
+	if(cache == 0) useCache = false;
+	else if(cache == 1) useCache = true;
+	
+	// Create BTree(degree, filename, useCache, cacheSize)
+	BTree myBTree = new BTree(degree, filename, useCache, cacheSize);
 	}
+	
+	// TODO display usage
+	// TODO input error protection
 }

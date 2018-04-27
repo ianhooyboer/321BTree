@@ -40,15 +40,56 @@ public class BTree {
 	private int offsetFromRoot;
 	private File file;
 	private RandomAccessFile randomAF;
-
+	
+	private int blockSize;
+	private final int KEY_SIZE = 4;
+	private BTreeCache cache;
+	
 	/**
 	 * Standard constructor for BTree object
 	 * 
 	 * @param degree
-	 *            - degree to be used during construction of BTree
+	 *            	- degree to be used during construction of BTree
 	 * @param filename
-	 *            - filename to be read from and written to
+	 *            	- filename to be read from and written to
+	 * @param useCache
+	 * 				- boolean to determine if cache is used
+	 * @param cacheSize
+	 * 				- size of cache used
 	 */
+	public BTree(int degree, File file, boolean useCache, int cacheSize) {
+		// block size = # of keys * size of keys + file offset of children * size of keys + metadata * size of keys
+		// TODO Metadata size
+		blockSize = (KEY_SIZE * (2 * degree - 1)) + (KEY_SIZE * (2 * degree));
+		this.degree = degree;
+		
+		// Cache option
+		if(useCache) {cache = new BTreeCache(cacheSize);}
+		
+		// set up new node in BTree
+		BTreeNode newNode = new BTreeNode();
+		newNode.setOffset(offsetFromRoot);
+		
+		// Add newNode to BTree, is leaf, with 0 keys
+		newNode.setLeafStatus(true);
+		newNode.setNumKeys(0);
+		
+		try {
+			file.delete();  									// clear file if exists
+			file.createNewFile();  								// create new file
+			randomAF = new RandomAccessFile(file, "rw");		// create new random access file set for both read and write
+		} catch(FileNotFoundException e) {
+			e.printStackTrace(System.err);
+			System.err.println("File: " + file.getName() + " not found.\n");
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}
+	}
+	
+	
+	/* --------------------------------------------------------------------
 	public BTree(int degree, File file) {
 		this.offsetFromRoot = 0; // Root offset is 0
 		this.degree = degree;
@@ -57,7 +98,6 @@ public class BTree {
 		clearFile(file);
 
 		try {
-
 			this.randomAF = new RandomAccessFile(file, "rw");
 
 		} catch (FileNotFoundException e) {
@@ -67,7 +107,8 @@ public class BTree {
 		}
 
 		root = createBTreeNode(randomAF, degree);
-	}
+	} ----------------------------------------------------------------------*/
+	
 
 	/**
 	 * zeros out file each time the program is run
@@ -105,7 +146,7 @@ public class BTree {
 			e.printStackTrace();
 		}
 
-		res.setFileOffset(fileoffset);
+		res.setOffset((int)fileoffset);
 
 		try {
 			writeNode(res, fileoffset);
@@ -131,6 +172,7 @@ public class BTree {
 	 */
 	public TreeObject keySearch(BTreeNode x, long k) {
 		int i = 0;
+		
 		TreeObject key = new TreeObject(k);
 
 		while (i <= x.getNumKeys() && key.compareTo(x.getKey(i)) > 0) {
@@ -139,7 +181,8 @@ public class BTree {
 
 		if (i <= x.getNumKeys() && key.compareTo(x.getKey(i)) == 0) {
 			return x.getKey(i);
-		} else if (x.isLeaf()) {
+		}
+		if (x.isLeaf()) {
 			return null;
 		} else {
 			return keySearch(readNode(x.getChild(i)), k);
@@ -156,37 +199,120 @@ public class BTree {
 	 *            - key within the node
 	 * @throws IOException
 	 */
-	public void insert(long key) throws IOException {// TODO not tested
+	public void insert(long k) throws IOException {// TODO not tested
 		BTreeNode r = root;
-
-		if (r.getNumKeys() == ((2 * degree - 1))) {
-			BTreeNode s = new BTreeNode();
-			root = s;
-			s.setLeafStatus(false);
-			s.setNumKeys(0);
-			s.addChildToRear(r.getFileOffset());
-			splitTree(s, 1);
-			insertNF(s, key);
-		} else {
-			insertNF(r, key);
-		}
+		int keyCount = r.getNumKeys();
+		TreeObject key = new TreeObject(k);
+		
+		if (keyCount == ((2 * degree - 1))) {
+			// Conditions
+			// while keyCount > 0 and root has no room for keys, decrement # of keys in root
+			while(keyCount > 0 && key.compareTo(r.getKey(keyCount - 1)) < 0) keyCount --;
+			
+			// if keyCount > 0 and root accepts key, increase frequency of keys in root
+			if(keyCount > 0 && key.compareTo(r.getKey(keyCount - 1)) == 0) r.getKey(keyCount - 1).incrementFrequency();
+			
+			else {
+				BTreeNode s = new BTreeNode();
+				s.setOffset(r.getOffset());
+				root = s;
+				
+				// set root
+				r.setOffset(blockSize);
+				r.setParent(s.getOffset());
+				
+				// set inserted nod and add child to root offset
+				s.setLeafStatus(false);
+				s.addChildToRear(r.getOffset());
+				
+				// split tree and insert key to non full node
+				splitTree(s, 0, r);
+				insertNF(s, k);
+			}
+		} else insertNF(r, k);  // else insert key at non full root
 	}
 
 	/**
 	 * Splits BTree child node.
 	 * 
-	 * Reference: Cormen, T. H., et al. 2009. Introduction to Algorithms (3rd
+	 * References: 
+	 * 
+	 * Cormen, T. H., et al. 2009. Introduction to Algorithms (3rd
 	 * edition). 494. MIT Press and McGraw-Hill. ISBN 0-262-03384-4.
 	 * 
+	 * Kaltenbrunner, A., et al.  B-trees.  14.  
+	 * Retrieved from www.di.ufpb.br > lucidio > Btrees
+	 * 
 	 * @param x
-	 *            - node within the BTree
+	 *            	- node being split
 	 * @param i
-	 *            - child to split
+	 *            	- child number
+	 * @param y		
+	 *				- x's ith child node 
 	 */
-	public void splitTree(BTreeNode x, int i) { // TODO not tested
-		BTreeNode z = new BTreeNode();
-		BTreeNode y = new BTreeNode();
-
+	public void splitTree(BTreeNode x, int i, BTreeNode y) { // TODO not tested
+		BTreeNode z = new BTreeNode();				// New child of x
+	
+		z.setLeafStatus(y.isLeaf());
+		z.setParent(y.getParent());
+		
+		// from 0 to min # of keys
+		for(int j = 0; j < degree - 1; j++) {
+			z.addKeyToRear(y.removeKey(degree));	// Remove key from y and add to z
+			
+			// Update # of keys in y and z
+			z.setNumKeys(z.getNumKeys() + 1);
+			y.setNumKeys(y.getNumKeys() - 1);
+		}
+		
+		// if y (x's ith child) is not a leaf
+		if(!y.isLeaf()) {
+			// remove a child from y and add to z from 0 to min # of children
+			for(int j = 0; j < degree; j++) {
+				z.addChildToRear(y.removeChild(degree));
+			}
+		}
+		// Add key to x from ith child
+		x.addKeyAtNode(i, y.removeKey(degree - 1));
+		
+		//Update # keys in x and y
+		x.setNumKeys(x.getNumKeys() + 1);
+		x.setNumKeys(x.getNumKeys() - 1);
+		
+		// If x is not root with one key
+		if(x != root && x.getNumKeys() != 1) {
+			try {
+				writeNode(y, y.getOffset());						// write ith child of x at y offset
+				z.setOffset(blockSize);								// set new child offset
+				
+				writeNode(z, blockSize);							// write new child in new block
+				x.addChildAtNode((long) z.getOffset(), i + 1);		// add ith + 1 child to x from z offset
+				
+				writeNode(x, x.getOffset());						// write parent node at offset
+				blockSize += nodeSize;								// add a node memory size to block
+			} catch (IOException e) {
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		} else {													// node being split is root and 1 key
+			try {
+				writeNode(y, blockSize);							// write ith child node in new block
+				blockSize += nodeSize;							
+				
+				z.setOffset(blockSize);								// set offset of new child to new block
+				x.addChildAtNode((long) z.getOffset(), i + 1);		// add ith + 1 child to x from z offset
+				writeNode(z, blockSize);							// write new child in new block
+				
+				writeNode(x, offsetFromRoot);						// write parent node to offset from root
+				blockSize += nodeSize;
+			} catch (IOException e) {
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		}
+		
+	}
+		/*
 		y.setParent(x.getParent());
 		z.setLeafStatus(y.isLeaf());
 		z.setNumKeys(degree - 1);
@@ -210,7 +336,7 @@ public class BTree {
 			x.addChildToRear(j);
 			System.out.println(this);
 		}
-		x.addChildAtNode(z.getFileOffset(), i + 1);
+		x.addChildAtNode((long) z.getOffset(), i + 1);
 
 		for (int j = x.getNumKeys(); j < i; j--) {
 			x.removeKey(j + 1);
@@ -220,15 +346,15 @@ public class BTree {
 		x.setNumKeys(x.getNumKeys() + 1);
 
 		try {
-			writeNode(y, y.getFileOffset());
-			writeNode(z, z.getFileOffset());
-			writeNode(x, x.getFileOffset());
+			writeNode(y, y.getOffset());
+			writeNode(z, z.getOffset());
+			writeNode(x, x.getOffset());
 		} catch (IOException e) {
 			e.printStackTrace(System.err);
 			System.exit(-1);
 		}
 
-	}
+	}*/
 
 	/**
 	 * Inserts key into tree rooted at the nonfull root node
@@ -268,7 +394,7 @@ public class BTree {
 				} else {
 					node.addKeyAtNode(0, new TreeObject(key));
 				}
-				writeNode(node, node.getFileOffset());
+				writeNode(node, node.getOffset());
 
 			} else { // node not a leaf
 				// TODO implement (requires split tree to be working)
@@ -287,13 +413,13 @@ public class BTree {
 	 *            - memory offset
 	 * @return node data
 	 */
-	public BTreeNode readNode(Long fileOffset) {
+	public BTreeNode readNode(long fileOffset) {
 		BTreeNode readData = null;
 		int count = 0;
 
 		readData = new BTreeNode();
 		TreeObject nodeObject = null;
-		readData.setFileOffset(fileOffset);
+		readData.setOffset((int) fileOffset);
 
 		try {
 			randomAF.seek(fileOffset);
@@ -399,8 +525,8 @@ public class BTree {
 		while (!myQ.isEmpty()) { // breadth-first traversal
 			BTreeNode d = myQ.remove();
 
-			for (Long fileoffset : d.getChildren()) {
-				BTreeNode e = readNode(fileoffset);
+			for (Long fileOffset : d.getChildren()) {
+				BTreeNode e = readNode(fileOffset);
 
 				if (e != null) {
 					myQ.add(e);

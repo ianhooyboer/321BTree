@@ -20,7 +20,7 @@ public class BTreeNode {
 	// -------------------Variables-------------------
 	private int numKeys;
 	private boolean isLeaf;
-	private long fileOffset;
+	private int offset;
 	private int parent;
 	private int degree;
 	private LinkedList<Long> children;
@@ -52,12 +52,12 @@ public class BTreeNode {
 	}
 
 	// fileOffset mutators
-	public long getFileOffset() {
-		return fileOffset;
+	public int getOffset() {
+		return offset;
 	}
 
-	public void setFileOffset(long fileoffset2) {
-		this.fileOffset = fileoffset2;
+	public void setOffset(int offset) {
+		this.offset = offset;
 	}
 
 	// parent mutators
@@ -123,8 +123,8 @@ public class BTreeNode {
 		keys.add(k);
 	}
 
-	public void addKeyAtNode(int k, TreeObject ke) {
-		keys.add(k, ke);
+	public void addKeyAtNode(int k, TreeObject key) {
+		keys.add(k, key);
 		numKeys++;
 	}
 
@@ -137,7 +137,7 @@ public class BTreeNode {
 		String buf = "";
 		
 		buf += "*** ***\n";
-		buf += "Node: " + fileOffset + "\n";
+		buf += "Node: " + offset + "\n";
 		
 		buf += "Keys: [ ";
 		for (TreeObject k : keys) { buf += k.getData() + "(" + k.getFrequency() + ")" + " ";}
