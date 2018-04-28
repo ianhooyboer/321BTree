@@ -44,6 +44,15 @@ public class DNAParser {
 		this.populateSSs();
 		this.ssCounter = 0;
 	}
+	
+	/**
+	 *  
+	 * @return a reference to gbkfile
+	 */
+	@SuppressWarnings("unused")
+	private File getGbkFile() {
+		return gbkfile;
+	}
 
 	/**
 	 * Helper method to populate a set with acceptable characters.

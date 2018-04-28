@@ -1,3 +1,4 @@
+// -------------------Libraries-------------------
 import java.io.File;
 
 /**
@@ -9,47 +10,66 @@ import java.io.File;
  * 		- Converting a string character to a key value (string to binary)
  * 
  * Usage is as follows:
- * java GeneBankSearch <0/1(no/with Cache)> <btree file> <query file> cache size> [<debug level>]
+ * java GeneBankSearch <0/1(no/with Cache)> <btree file> <query file> <cache size> [<debug level>]
  * 
  * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
  */
 
-// -------------------Libraries-------------------
-
 public class GeneBankSearch {
 	// -------------------Variables-------------------
-	private static int degree;
+	private static boolean useCache;
 	private static File BTreeFile;
 	private static File QueryFile;
-	private File filename;
-	private static boolean useCache;
 	private static int cacheSize;
+	private static int debugLevel = 0;
 	
-	public static void main(String[] args) { //TODO: add argument checking, print usage information if invalid
-		if (args.length == 4) {	
-			if (Integer.parseInt(args[0]) == 1) {
-				useCache = true;
-			} else {
-				useCache = false;
+	private static int degree;
+	private File filename;
+	
+	public static void main(String[] args) {
+		
+		if (args.length == 4 || args.length == 5) {
+			try {
+				useCache = (Integer.parseInt(args[0]) == 1) ? true : false;
+				BTreeFile = new File(args[1]);
+				QueryFile = new File(args[2]);
+				
+				if (useCache == false) {
+					debugLevel = (Integer.parseInt(args[3]) == 1) ? 1 : 0;
+				}else {
+					cacheSize = Integer.parseInt(args[3]);
+					debugLevel = (Integer.parseInt(args[4]) == 1) ? 1 : 0;
+				}
+				
+			}catch (NumberFormatException e) {
+				exitWithUsage();
+			}catch (NullPointerException e) {
+				System.err.println("BTree File or Query file not found.");
+				exitWithUsage();
 			}
+			
+		}else {
+			exitWithUsage();
 		}
-			BTreeFile = new File(args[1]);
-			QueryFile = new File(args[2]);
-			cacheSize = Integer.parseInt(args[3]);
+		
+		
 		
 	}
-
+	
+	private static void exitWithUsage() {
+		System.err.println("Usage is as follows:");
+		System.err.println("java GeneBankSearch <0/1(no/with Cache)> <btree file> <query file> <cache size> [<debug level>]");
+		System.exit(-1);
+	}
 	
 	
-	//
-	
+	// -------------------Notes-------------------
 	// Create class
-	BTree myBTree = new BTree(degree, filename, useCache, cacheSize); //constructor (theoretically) working
-	//BTree myBTree = new BTree(filename, degree);  
-							  // get degree and subsequence length from BTree file 
-							  // - write degree as first int in file or first item in node = degree
-							  // subsequence length - check length of first subsequence.  subLength should be same
-							  // in meta file, query file
+	//constructor (theoretically) working
+	// get degree and subsequence length from BTree file 
+	// - write degree as first int in file or first item in node = degree
+	// subsequence length - check length of first subsequence.  subLength should be same
+	// in meta file, query file
 	
 	// Always keep root node in memory
 	
@@ -57,5 +77,5 @@ public class GeneBankSearch {
 	
 	/*  For-each subsequence
 	 *  if(BTree.find(subSequence) {print freq and data;}
-	*/
+	 */
 }
