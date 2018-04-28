@@ -1,3 +1,5 @@
+import java.io.File;
+
 /**
  * CS 321 B-Tree Project Spring 2018
  * 
@@ -16,12 +18,33 @@
 
 public class GeneBankSearch {
 	// -------------------Variables-------------------
-	private String degree;
-	private int filename;
+	private static int degree;
+	private static File BTreeFile;
+	private static File QueryFile;
+	private File filename;
+	private static boolean useCache;
+	private static int cacheSize;
+	
+	public static void main(String[] args) { //TODO: add argument checking, print usage information if invalid
+		if (args.length == 4) {	
+			if (Integer.parseInt(args[0]) == 1) {
+				useCache = true;
+			} else {
+				useCache = false;
+			}
+		}
+			BTreeFile = new File(args[1]);
+			QueryFile = new File(args[2]);
+			cacheSize = Integer.parseInt(args[3]);
+		
+	}
+
+	
 	
 	//
 	
 	// Create class
+	BTree myBTree = new BTree(degree, filename, useCache, cacheSize); //constructor (theoretically) working
 	//BTree myBTree = new BTree(filename, degree);  
 							  // get degree and subsequence length from BTree file 
 							  // - write degree as first int in file or first item in node = degree
