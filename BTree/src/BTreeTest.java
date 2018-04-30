@@ -14,28 +14,27 @@ public class BTreeTest {
 	public static void main(String[] args) {
 		String filename = "myTest.txt";
 		File file = new File(filename);
-		int degree = 4;
+		int degree = 2;
 		boolean useCache = false;
 		int cacheSize = 0;
 
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize); // tests constructor
 
 		try {
+			
 			insertToEmptyTreeTest(myBTree, 3); // test inserting a key into BTree
 			insertToTreeTest(myBTree, 1);
 			insertToTreeIncrementTest(myBTree, 1);
 			keySearchTest(myBTree, 3);
-
-		
-		
+			
+			myBTree.insert(4);		
+			
+			myBTree.insert(6);
+			System.out.println(myBTree.toString());	
 		
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		
-		
-		System.out.println(myBTree.toString());
+		}		
 	}
 
 	/**

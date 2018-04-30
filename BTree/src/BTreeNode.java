@@ -134,7 +134,6 @@ public class BTreeNode {
 
 	public void addKeyAtNode(int k, TreeObject key) {
 		keys.add(k, key);
-		numKeys++;
 	}
 
 	public TreeObject removeKey(int k) {
@@ -145,16 +144,19 @@ public class BTreeNode {
 	public String toString() {
 		String buf = "";
 		
-		buf += "*** ***\n";
+		buf += "***B***\n";
 		buf += "Node: " + offset + "\n";
 		
 		buf += "Keys: [ ";
 		for (TreeObject k : keys) { buf += k.getData() + "(" + k.getFrequency() + ")" + " ";}
 		buf += " ]\n";
 		
-		buf += "--- ---\n";
-		buf += "Children " + children.toString() +"\n"; //TODO wrong, fix like above
-		buf += "*** ***\n";
+//		buf += "--- ---\n";
+		buf += "Children: [ ";
+		for (Integer i : children) {buf += i.toString() +" ";}
+		buf += " ]\n";
+		
+		buf += "***E***\n";
 		
 		return buf;
 	}

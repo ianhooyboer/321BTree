@@ -27,7 +27,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
 import java.util.ArrayDeque;
 
@@ -74,6 +73,8 @@ public class BTree {
 		newNode.setLeafStatus(true);
 		newNode.setNumKeys(0);
 		
+		root = newNode; // newNode is the first root
+		
 		try {
 			file.delete();  									// clear file if exists
 			file.createNewFile();  								// create new file
@@ -88,44 +89,6 @@ public class BTree {
 		}
 	}
 	
-	
-	/* --------------------------------------------------------------------
-	public BTree(int degree, File file) {
-		this.offsetFromRoot = 0; // Root offset is 0
-		this.degree = degree;
-		this.file = file;
-
-		clearFile(file);
-
-		try {
-			this.randomAF = new RandomAccessFile(file, "rw");
-
-		} catch (FileNotFoundException e) {
-			e.printStackTrace(System.err);
-			System.err.println("\nFile: " + file.getName() + " not found.");
-			System.exit(-1);
-		}
-
-		root = createBTreeNode(randomAF, degree);
-	} ----------------------------------------------------------------------*/
-	
-
-	/**
-	 * zeros out file each time the program is run
-	 * 
-	 * @param file
-	 */
-	private void clearFile(File file) {
-		PrintWriter writer = null;
-		try {
-			writer = new PrintWriter(file);
-		} catch (FileNotFoundException e1) {
-			e1.printStackTrace(System.err);
-			System.exit(-1);
-		}
-		writer.print("");
-		writer.close();
-	}
 
 	/**
 	 * Creates a new BTree node using a file offset set to the current end of file
@@ -221,7 +184,7 @@ public class BTree {
 				r.setOffset(blockSize);
 				r.setParent(s.getOffset());
 				
-				// set inserted nod and add child to root offset
+				// set inserted node and add child to root offset
 				s.setLeafStatus(false);
 				s.addChildToRear(r.getOffset());
 				
@@ -277,7 +240,7 @@ public class BTree {
 		
 		//Update # keys in x and y
 		x.setNumKeys(x.getNumKeys() + 1);
-		x.setNumKeys(x.getNumKeys() - 1);
+		y.setNumKeys(y.getNumKeys() - 1);
 		
 		// If x is not root with one key
 		if(x != root && x.getNumKeys() != 1) {
