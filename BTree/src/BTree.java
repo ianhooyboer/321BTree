@@ -286,7 +286,7 @@ public class BTree {
 				z.setOffset(blockSize);								// set new child offset
 				
 				writeNode(z, blockSize);							// write new child in new block
-				x.addChildAtNode((long) z.getOffset(), i + 1);		// add ith + 1 child to x from z offset
+				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				
 				writeNode(x, x.getOffset());						// write parent node at offset
 				blockSize += nodeSize;								// add a node memory size to block
@@ -300,7 +300,7 @@ public class BTree {
 				blockSize += nodeSize;							
 				
 				z.setOffset(blockSize);								// set offset of new child to new block
-				x.addChildAtNode((long) z.getOffset(), i + 1);		// add ith + 1 child to x from z offset
+				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				writeNode(z, blockSize);							// write new child in new block
 				
 				writeNode(x, offsetFromRoot);						// write parent node to offset from root
@@ -312,49 +312,6 @@ public class BTree {
 		}
 		
 	}
-		/*
-		y.setParent(x.getParent());
-		z.setLeafStatus(y.isLeaf());
-		z.setNumKeys(degree - 1);
-
-		for (int j = 0; j < degree - 1; j++) {
-			z.addKeyToRear(y.removeKey(degree));
-			z.setNumKeys(z.getNumKeys() + 1);
-			y.setNumKeys(y.getNumKeys() - 1);
-		}
-
-		if (!y.isLeaf()) {
-			for (int j = 0; j < degree; j++) {
-				z.addChildToRear(y.removeChild(degree));
-			}
-		}
-		y.setNumKeys(degree - 1);
-		x.setNumKeys(x.getNumKeys() + 1);
-
-		for (int j = x.getNumKeys(); j < i; j--) { // getting stuck in infinite here
-												   // could this possibly need to be changed to 'j > i' since j is being decremented?
-			x.addChildToRear(j);
-			System.out.println(this);
-		}
-		x.addChildAtNode((long) z.getOffset(), i + 1);
-
-		for (int j = x.getNumKeys(); j < i; j--) {
-			x.removeKey(j + 1);
-		}
-		x.addKeyToRear(y.getKey(degree));
-
-		x.setNumKeys(x.getNumKeys() + 1);
-
-		try {
-			writeNode(y, y.getOffset());
-			writeNode(z, z.getOffset());
-			writeNode(x, x.getOffset());
-		} catch (IOException e) {
-			e.printStackTrace(System.err);
-			System.exit(-1);
-		}
-
-	}*/
 
 	/**
 	 * Inserts key into tree rooted at the nonfull root node
@@ -368,77 +325,68 @@ public class BTree {
 	 *            - key within the node
 	 * @throws IOException
 	 */
-	public void insertNF(BTreeNode node, long key) throws IOException {
+	public void insertNF(BTreeNode x, long key) throws IOException {
 		// TODO write unit test(s)
 
-		// set int i to node.number of keys
+		// set int i to x.number of keys, declare tree object with key
+		int i = x.getNumKeys();
+		TreeObject childKey = new TreeObject(key);
 		
 		// if x is a leaf node
-		
-			// while i >= 1 && key < node.key at i
-		
-				// node.key at i + 1 = node.key at i
-		
-				// i = i - 1
-		
-			// node.key at i + 1 = key
-		
-			// number of keys in node increment by 1
-		
-			// writeNode(node, at offset)
-		
-		//else while i >= 1 and key < node.key at i (case for node not being leaf)
+		if(x.isLeaf()) {
 			
-				// i = i - 1
+			// case for x key being less than child key
+			// while i >= 0 && key < x.key at i, x.key at i + 1 = x.key at i, decrement i
+			while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
+				i--;
+
+			// case for x key and child key being equal
+			if(i > 0 && childKey.compareTo(x.getKey(i - 1)) == 0)
+				x.getKey(i - 1).incrementFrequency();
+			
+			// case for x key larger than child key
+			// x.key at i + 1 = key
+			// number of keys in node increment by 1
+			else {
+				x.addKeyAtNode(i, childKey);
+				x.setNumKeys(x.getNumKeys() + 1);
+			}
 		
-			// i = i + 1
+			// writeNode(x, at offset)
+			writeNode(x, x.getOffset());
+		}
 		
-			// readNode(child of node)
+		// if x is not leaf node
+		//else while i > 0 and key < x.key at i (case for node not being leaf), decrememnt i
+		else {
+			while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
+				i--;
+			
+			// Same tests as when x was leaf
+			if(i > 0 && childKey.compareTo(x.getKey(i - 1)) == 0) {
+				x.getKey(i - 1).incrementFrequency();
+				writeNode(x, x.getOffset());
+			}
+			
+			// readNode(child of node), get offset from x, create new node
+			int xOffset = x.getChild(i);
+			BTreeNode y = readNode(xOffset);
 			
 			// if amount of keys in child node == 2t - 1
+			if(y.getNumKeys() == 2 * degree - 1) {
 				
-				// splitTree(node, i, child node)
+				// splitTree(x, i, child node)
+				splitTree(x, i, y);
 				
-				// if key > key of node at i
-		
-					// i = i + 1
-			
-			// insertNF(child node, key)
-		
-		
-		TreeObject isPresent = null;
-		if (node.getNumKeys() != 0 && node.getNumKeys() < (2 * node.getDegree() - 1)) { // TODO broken, wip
-			isPresent = keySearch(node, key);
-		}
-
-		if (isPresent != null) { // increment frequency and be done
-			isPresent.incrementFrequency();
-		} else {
-			if (node.isLeaf()) { // if node is a leaf
-									// add the key at the correctly sorted position
-				int pos = 0;
-				if (!node.getKeys().isEmpty()) {
-					for (TreeObject obj : node.getKeys()) {
-						if (key < obj.getData()) {
-							break;
-						} else {
-							pos++;
-						}
-					}
-					node.addKeyAtNode(pos, new TreeObject(key));
-				} else {
-					node.addKeyAtNode(0, new TreeObject(key));
-				}
-				writeNode(node, node.getOffset());
-
-			} else { // node not a leaf
-				// TODO implement (requires split tree to be working)
-				while (!node.getKeys().isEmpty()) {
-
-				}
+				// if key > key of node at i, increment i
+				if(childKey.compareTo(x.getKey(i)) > 0)
+					i++;
 			}
+			// insertNF(child node, key)
+			xOffset = x.getChild(i);
+			BTreeNode childNode = readNode(xOffset);
+			insertNF(childNode, key);
 		}
-
 	}
 
 	/**
@@ -476,7 +424,7 @@ public class BTree {
 
 				// If count is less than number of keys in node and not leaf
 				if (count < readData.getNumKeys() && !readData.isLeaf()) {
-					readData.addChildToRear(randomAF.readLong());
+					readData.addChildToRear(randomAF.readInt());
 				}
 
 				// If count is greater/equal to number of keys in node or leaf
@@ -487,7 +435,7 @@ public class BTree {
 
 			// If count equals number of keys and is not a leaf
 			if (count == readData.getNumKeys() && !readData.isLeaf()) {
-				readData.addChildToRear(randomAF.readLong());
+				readData.addChildToRear(randomAF.readInt());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -560,7 +508,7 @@ public class BTree {
 		while (!myQ.isEmpty()) { // breadth-first traversal
 			BTreeNode d = myQ.remove();
 
-			for (Long fileOffset : d.getChildren()) {
+			for (Integer fileOffset : d.getChildren()) {
 				BTreeNode e = readNode(fileOffset);
 
 				if (e != null) {
@@ -573,5 +521,35 @@ public class BTree {
 
 		return buf;
 	}
-
+	
+	// Metadata classes
+	/**
+	 * Writes tree metadata
+	 */
+	public void writeMetadata() {
+		try {
+			randomAF.seek(0);
+			randomAF.writeInt(degree);
+			randomAF.writeInt(blockSize);
+			randomAF.writeInt(offsetFromRoot);
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
+	
+	/**
+	 * Reads tree metadata
+	 */
+	public void readMetadata() {
+		try {
+			randomAF.seek(0);
+			degree = randomAF.readInt();
+			nodeSize = randomAF.readInt();
+			offsetFromRoot = randomAF.readInt();
+		} catch (IOException e) {
+			e.printStackTrace();
+			System.exit(-1);
+		}
+	}
 }
