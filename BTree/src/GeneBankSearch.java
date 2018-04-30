@@ -5,9 +5,6 @@ import java.io.File;
  * CS 321 B-Tree Project Spring 2018
  * 
  * GenerBankSearch driver class searches the B-Tree for sequences of a provided length.
- * The following conversion methods are in the search class:
- * 		- Converting a key to a string (from binary to a string character)
- * 		- Converting a string character to a key value (string to binary)
  * 
  * Usage is as follows:
  * java GeneBankSearch <0/1(no/with Cache)> <btree file> <query file> <cache size> [<debug level>]
@@ -18,8 +15,8 @@ import java.io.File;
 public class GeneBankSearch {
 	// -------------------Variables-------------------
 	private static boolean useCache;
-	private static File BTreeFile;
-	private static File QueryFile;
+	private static File BTreeFile; //file to read BTree from (generated from GeneBankCreateBTree)
+	private static File QueryFile; //file with all possible sequences of specified length (provided)
 	private static int cacheSize;
 	private static int debugLevel = 0;
 	
@@ -52,7 +49,7 @@ public class GeneBankSearch {
 			exitWithUsage();
 		}
 		
-		
+		//
 		
 	}
 	

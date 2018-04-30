@@ -189,4 +189,8 @@ public class DNAParser {
 		}
 		return res;
 	}
+	
+	public ArrayList<String> getSSs() {
+		return SSs;
+	}
 }

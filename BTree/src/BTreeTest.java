@@ -29,7 +29,7 @@ public class BTreeTest {
 			
 			myBTree.insert(4);		
 			
-			myBTree.insert(6);
+//			myBTree.insert(6);
 			System.out.println(myBTree.toString());	
 		
 		} catch (IOException e) {

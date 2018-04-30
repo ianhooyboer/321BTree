@@ -145,14 +145,14 @@ public class BTreeNode {
 		String buf = "";
 		
 		buf += "***B***\n";
-		buf += "Node: " + offset + "\n";
+		buf += "Node offset: " + offset + "\n";
 		
 		buf += "Keys: [ ";
 		for (TreeObject k : keys) { buf += k.getData() + "(" + k.getFrequency() + ")" + " ";}
 		buf += " ]\n";
 		
 //		buf += "--- ---\n";
-		buf += "Children: [ ";
+		buf += "Children (addressed by offsets): [ ";
 		for (Integer i : children) {buf += i.toString() +" ";}
 		buf += " ]\n";
 		

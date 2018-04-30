@@ -76,9 +76,9 @@ public class BTree {
 		root = newNode; // newNode is the first root
 		
 		try {
-			file.delete();  									// clear file if exists
-			file.createNewFile();  								// create new file
-			randomAF = new RandomAccessFile(file, "rw");		// create new random access file set for both read and write
+			if (file.exists()) file.delete();    			// clear file if exists
+			file.createNewFile();  							// create new file
+			randomAF = new RandomAccessFile(file, "rw");	// create new random access file set for both read and write
 		} catch(FileNotFoundException e) {
 			e.printStackTrace(System.err);
 			System.err.println("File: " + file.getName() + " not found.\n");
