@@ -26,16 +26,29 @@ public class BTreeTest {
 		DNAParser testParser = new DNAParser(sequenceLength);
 
 		try {
+			
+			/**
+			 * The SubSequenceGenerator object generates a list of phony 'atcg' elements
+			 * 
+			 * The for loop adds them all to the test BTree
+			 * 
+			 * to test, change the value of numElementsToAdd.
+			 * 
+			 * 
+			 * At the time of writing, the BTree breaks down about 9-12 elements.   
+			 * 		-Ian
+			 */
+			
 			numElementsToAdd = 8; // for testing, modify this number
 			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength);
-			
+						
 			for (String s : ssG.getSSs()) {
-				// System.out.println(s);
+//				System.out.println(s); // to see subsequences before they are added
 				long l = testParser.convertToKey(s);
 				myBTree.insert(l);
 			}
 
-			System.out.println(myBTree.toString());
+			System.out.println(myBTree.toString()); //prints out final btree
 
 			// Cache testing
 			System.out.print("Cache Hits: " + cache.getHits() + "\n");
@@ -49,17 +62,12 @@ public class BTreeTest {
 		}
 
 	}
+	
+	
+	
 
-	/**
-	 * Unit test of insert(), to be called immediately after creating a new BTree
-	 * 
-	 * @param tree
-	 *            the tree to insert into
-	 * @param testVal
-	 *            the value to insert
-	 * @return true if the test succeeds, false otherwise
-	 * @throws IOException
-	 */
+	/* These need to be redone
+	
 	static boolean insertToEmptyTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertEmptyExpectedVal = new TreeObject(testVal);
 
@@ -78,16 +86,6 @@ public class BTreeTest {
 		}
 	}
 
-	/**
-	 * Unit test of insert(), to be called following insertToEmptyTreeTest()
-	 * 
-	 * @param tree
-	 *            the tree to insert into
-	 * @param testVal
-	 *            the value to insert
-	 * @return true if the test succeeds, false otherwise
-	 * @throws IOException
-	 */
 	static boolean insertToTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertExpectedVal = new TreeObject(testVal);
 
@@ -110,16 +108,6 @@ public class BTreeTest {
 		}
 	}
 
-	/**
-	 * Unit test of insert(), to be called following insertToTreeTest()
-	 * 
-	 * @param tree
-	 *            the tree to insert into
-	 * @param testVal
-	 *            the value to insert
-	 * @return true if the test succeeds, false otherwise
-	 * @throws IOException
-	 */
 	static boolean insertToTreeIncrementTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertIncrementExpectedVal = new TreeObject(testVal);
 
@@ -143,10 +131,6 @@ public class BTreeTest {
 		}
 	}
 
-	/**
-	 * Unit test of keySearchTest
-	 * 
-	 */
 	static boolean keySearchTest(BTree tree, long testVal) {
 		long kstExpectedVal = testVal;
 		TreeObject keySearchTestNode = tree.keySearch(tree.getRoot(), kstExpectedVal);
@@ -164,5 +148,6 @@ public class BTreeTest {
 			return false;
 		}
 	}
-
+	
+	*/
 }
