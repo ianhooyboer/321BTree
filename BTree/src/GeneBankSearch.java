@@ -20,7 +20,7 @@ public class GeneBankSearch {
 	private static int cacheSize;
 	private static int debugLevel = 0;
 	
-	private static int degree;
+	private static int degree, sequence;
 	private File filename;
 	
 	public static void main(String[] args) {
@@ -45,11 +45,16 @@ public class GeneBankSearch {
 				exitWithUsage();
 			}
 			
-		}else {
-			exitWithUsage();
-		}
+		} else 
+			exitWithUsage();	
 		
-		//
+		// get degree and subsequence length from BTree file 
+		// - write degree as first int in file or first item in node = degree
+		
+		// subsequence length - check length of first subsequence.  subLength should be same
+		// in meta file, query file
+		
+		
 		
 	}
 	

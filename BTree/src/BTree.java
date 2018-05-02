@@ -39,7 +39,6 @@ public class BTree {
 	private BTreeNode root;
 	private int nodeSize;
 	private int offsetFromRoot;
-	private File file;
 	private RandomAccessFile randomAF;
 	private int blockSize;
 	private BTreeCache cache;
@@ -65,7 +64,8 @@ public class BTree {
 		this.degree = degree;
 		
 		// Cache option
-		if(useCache) {cache = new BTreeCache(cacheSize);}
+		if(useCache) 
+			cache = new BTreeCache(cacheSize);
 		
 		// set up new node in BTree
 		BTreeNode newNode = new BTreeNode();
@@ -78,49 +78,18 @@ public class BTree {
 		root = newNode; // newNode is the first root
 		
 		try {
-			if (file.exists()) file.delete();    			// clear file if exists
+			if(file.exists()) file.delete();    			// clear file if exists
 			file.createNewFile();  							// create new file
 			randomAF = new RandomAccessFile(file, "rw");	// create new random access file set for both read and write
 		} catch(FileNotFoundException e) {
 			e.printStackTrace(System.err);
 			System.err.println("File: " + file.getName() + " not found.\n");
 			System.exit(-1);
-		} catch (IOException e) {
+		} catch(IOException e) {
 			e.printStackTrace(System.err);
 			System.exit(-1);
 		}
-	}
-	
-
-	/**
-	 * Creates a new BTree node using a file offset set to the current end of file
-	 * 
-	 * @param randomAF
-	 *            - file to be written to
-	 * @param degree
-	 *            - degree of current BTree to be stored
-	 * @return new BTree node with stored fileoffset
-	 */
-	public BTreeNode createBTreeNode(RandomAccessFile randomAF, int degree) {
-		BTreeNode res = new BTreeNode();
-		long fileoffset = 0;
-
-		try {
-			fileoffset = randomAF.length();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		res.setOffset((int)fileoffset);
-
-		try {
-			writeNode(res, fileoffset);
-		} catch (IOException e) {
-			e.printStackTrace(System.err);
-			System.exit(-1);
-		}
-
-		return res;
+		writeMetadata();
 	}
 
 	/**
@@ -383,6 +352,8 @@ public class BTree {
 		BTreeNode readData = null;
 		int count = 0;
 
+		if(cache != null)
+			readData = cache.nodeInCache(fileOffset);
 		readData = new BTreeNode();
 		TreeObject nodeObject = null;
 		readData.setOffset((int) fileOffset);
@@ -436,18 +407,30 @@ public class BTree {
 	 *            - offset from root
 	 * @throws IOException
 	 */
-	public void writeNode(BTreeNode writeData, long fileOffset) throws IOException {
-		int count = 0;
-		
-		/* cache functionality
+	public void writeNode(BTreeNode writeData, int fileOffset) throws IOException {
+	
+		// If using cache
 		if (cache != null) {
 			BTreeNode cachedNode = cache.addNode(writeData, fileOffset);
 			
+			// see if cached node exists
 			if(cachedNode != null)
-				writeNode(cachedNode, cachedNode.getOffset());
+				// write cache to file
+				writeToFile(cachedNode, cachedNode.getOffset());
 		} else
-			writeNode(writeData, fileOffset); */
+			// write nodes without caching to file
+			writeToFile(writeData, fileOffset);
+	}
 
+	/**
+	 * Method to write node to file.
+	 * 
+	 * @param writeData
+	 * @param fileOffset
+	 */
+	public void writeToFile(BTreeNode writeData, int fileOffset) {
+		int count = 0;
+		
 		try {
 			// Metadata
 			randomAF.seek(writeData.getOffset());

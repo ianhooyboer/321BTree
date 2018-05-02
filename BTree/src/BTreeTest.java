@@ -15,10 +15,12 @@ public class BTreeTest {
 		String filename = "myTest.txt";
 		File file = new File(filename);
 		int degree = 2;
-		boolean useCache = false;
-		int cacheSize = 0;
+		boolean useCache = true;
+		int cacheSize = 500;
 
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize); // tests constructor
+		
+		BTreeCache cache = new BTreeCache(cacheSize);
 
 		try {
 			
@@ -29,8 +31,14 @@ public class BTreeTest {
 			
 			myBTree.insert(4);		
 			
-//			myBTree.insert(6);
+			myBTree.insert(6);
 			System.out.println(myBTree.toString());	
+			
+			// Cache testing
+			System.out.print("Cache Hits: " + cache.getHits() + "\n");
+			System.out.print("Cache Misses: " + cache.getMisses()+ "\n");
+			System.out.print("Cache Ratio: " + cache.getHitRatio());
+			
 		
 		} catch (IOException e) {
 			e.printStackTrace();

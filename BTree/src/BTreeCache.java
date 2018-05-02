@@ -37,9 +37,9 @@ public class BTreeCache implements Iterable<BTreeNode>{
 	public BTreeNode addNode(BTreeNode nodeCache, long offset) {
 		BTreeNode retVal = null;
 		
-		if(nodeList.size() == cacheSize) {
+		if(nodeList.size() == cacheSize)
 			retVal = nodeList.removeLast();
-		}
+		
 		nodeList.addFirst(nodeCache);
 		return retVal;
 	}
@@ -106,7 +106,7 @@ public class BTreeCache implements Iterable<BTreeNode>{
 	 * @return hits divided by references 
 	 */
 	public long getHitRatio() {
-		return ((long) getHits() / (long) getReferences());
+		return ((long) getHits() / ((long) getReferences() + 1));
 	}
 	
 	/**
