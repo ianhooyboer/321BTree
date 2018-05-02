@@ -1,15 +1,20 @@
 import java.util.ArrayList;
+import java.util.Random;
 
 public class SubSequenceGenerator {
 
 	private ArrayList<String> SSs;
 	private int numSeqs;
 	private int ssLength;
+	private boolean seeded;
+	Random rand;
 
-	public SubSequenceGenerator(int numSeqs, int ssLength) {
+	public SubSequenceGenerator(int numSeqs, int ssLength, boolean seeded) {
 
 		this.numSeqs = numSeqs;
 		this.ssLength = ssLength;
+		this.seeded = (seeded == true) ? true : false;
+		if (this.seeded) rand = new Random(1);
 
 		this.SSs = generateSubSequences(numSeqs, ssLength);
 	}
@@ -21,7 +26,14 @@ public class SubSequenceGenerator {
 			String nextSeq = "";
 
 			for (int j = 0; j < ssLength; j++) {
-				double nextChar = Math.random() * 4;
+				double nextChar;
+				
+					if (seeded) {
+						nextChar = rand.nextDouble() * 4;
+					}else {
+						nextChar = Math.random() * 4;
+					}				
+				
 				int intChar = (int) nextChar;
 				switch (intChar) {
 				case 0:

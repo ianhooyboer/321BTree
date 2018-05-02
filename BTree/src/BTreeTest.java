@@ -34,13 +34,15 @@ public class BTreeTest {
 			 * 
 			 * to test, change the value of numElementsToAdd.
 			 * 
+			 * additionally, the third Boolean argument of the SubSequenceGenerator locks it into the same seeded sequence of randoms.
+			 * 
 			 * 
 			 * At the time of writing, the BTree breaks down about 9-12 elements.   
 			 * 		-Ian
 			 */
 			
-			numElementsToAdd = 8; // for testing, modify this number
-			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength);
+			numElementsToAdd = 3; // for testing, modify this number
+			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength, false);
 						
 			for (String s : ssG.getSSs()) {
 //				System.out.println(s); // to see subsequences before they are added
