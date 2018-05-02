@@ -33,16 +33,17 @@ import java.util.ArrayDeque;
 public class BTree {
 
 	// -------------------Variables-------------------
+	private final int KEY_SIZE = 4;
+	
 	private int degree;
 	private BTreeNode root;
 	private int nodeSize;
 	private int offsetFromRoot;
 	private File file;
 	private RandomAccessFile randomAF;
-	
 	private int blockSize;
-	private final int KEY_SIZE = 4;
 	private BTreeCache cache;
+	private int blockInsert;
 	
 	/**
 	 * Standard constructor for BTree object
@@ -58,8 +59,9 @@ public class BTree {
 	 */
 	public BTree(int degree, File file, boolean useCache, int cacheSize) {
 		// block size = # of keys * size of keys + file offset of children * size of keys + metadata * size of keys
-		// TODO Metadata size
-		blockSize = (KEY_SIZE * (2 * degree - 1)) + (KEY_SIZE * (2 * degree));
+		blockSize = (KEY_SIZE * (2 * degree - 1));
+		offsetFromRoot =  (KEY_SIZE * (2 * degree));
+		blockInsert = blockSize + offsetFromRoot;
 		this.degree = degree;
 		
 		// Cache option
@@ -243,12 +245,27 @@ public class BTree {
 		y.setNumKeys(y.getNumKeys() - 1);
 		
 		// If x is not root with one key
-		if(x != root && x.getNumKeys() != 1) {
+		if(x == root && x.getNumKeys() == 1) {						// node being split is root and 1 key
+			try {
+				writeNode(y, blockInsert);							// write ith child node in new block
+				blockInsert += nodeSize;							
+				
+				z.setOffset(blockInsert);								// set offset of new child to new block
+				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
+				writeNode(z, blockInsert);							// write new child in new block
+				
+				writeNode(x, offsetFromRoot);						// write parent node to offset from root
+				blockInsert += nodeSize;
+			} catch (IOException e) {
+				e.printStackTrace(System.err);
+				System.exit(-1);
+			}
+		} else {													
 			try {
 				writeNode(y, y.getOffset());						// write ith child of x at y offset
-				z.setOffset(blockSize);								// set new child offset
+				z.setOffset(blockInsert);								// set new child offset
 				
-				writeNode(z, blockSize);							// write new child in new block
+				writeNode(z, blockInsert);							// write new child in new block
 				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				
 				writeNode(x, x.getOffset());						// write parent node at offset
@@ -257,23 +274,7 @@ public class BTree {
 				e.printStackTrace(System.err);
 				System.exit(-1);
 			}
-		} else {													// node being split is root and 1 key
-			try {
-				writeNode(y, blockSize);							// write ith child node in new block
-				blockSize += nodeSize;							
-				
-				z.setOffset(blockSize);								// set offset of new child to new block
-				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
-				writeNode(z, blockSize);							// write new child in new block
-				
-				writeNode(x, offsetFromRoot);						// write parent node to offset from root
-				blockSize += nodeSize;
-			} catch (IOException e) {
-				e.printStackTrace(System.err);
-				System.exit(-1);
-			}
 		}
-		
 	}
 
 	/**
@@ -416,10 +417,24 @@ public class BTree {
 	 *            - offset from root
 	 * @throws IOException
 	 */
-	public void writeNode(BTreeNode writeData, long fileoffset) throws IOException {
+	public void writeNode(BTreeNode writeData, long fileOffset) throws IOException {
 		int count = 0;
+		
+		// cache functionality
+		if (cache != null) {
+			BTreeNode cachedNode = cache.addNode(writeData, fileOffset);
+			
+			if(cachedNode != null)
+				writeNode(cachedNode, cachedNode.getOffset());
+		} else
+			writeNode(writeData, fileOffset);
 
 		try {
+			// Metadata
+			randomAF.seek(writeData.getOffset());
+			randomAF.writeBoolean(writeData.isLeaf());
+			randomAF.writeInt(writeData.getNumKeys());
+			
 			randomAF.writeLong(writeData.getParent());
 
 			// write nodes from 0 to max keys
