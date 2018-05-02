@@ -348,18 +348,23 @@ public class BTree {
 	 *            - memory offset
 	 * @return node data
 	 */
-	public BTreeNode readNode(long fileOffset) {
+	public BTreeNode readNode(int fileOffset) {
 		BTreeNode readData = null;
+		TreeObject nodeObject = null;
 		int count = 0;
 
 		if(cache != null)
 			readData = cache.nodeInCache(fileOffset);
+		
+		if(readData != null)
+			return readData;
+		
 		readData = new BTreeNode();
-		TreeObject nodeObject = null;
-		readData.setOffset((int) fileOffset);
+		readData.setOffset(fileOffset);
 
 		try {
 			randomAF.seek(fileOffset);
+			
 			// Set number of keys, parent, and leaf status
 			readData.setNumKeys(randomAF.readInt());
 			readData.setParent(randomAF.readInt());
@@ -377,12 +382,12 @@ public class BTree {
 				}
 
 				// If count is less than number of keys in node and not leaf
-				if (count < readData.getNumKeys() && !readData.isLeaf()) {
+				if (count < readData.getNumKeys() + 1 && !readData.isLeaf()) {
 					readData.addChildToRear(randomAF.readInt());
 				}
 
 				// If count is greater/equal to number of keys in node or leaf
-				else if (count >= readData.getNumKeys() || readData.isLeaf()) {
+				else if (count >= readData.getNumKeys() + 1 || readData.isLeaf()) {
 					randomAF.seek(randomAF.getFilePointer() + fileOffset);
 				}
 			}
