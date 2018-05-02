@@ -45,6 +45,10 @@ public class DNAParser {
 		this.ssCounter = 0;
 	}
 	
+	public DNAParser(int sequenceLength) {
+		this.k = sequenceLength;
+	}
+
 	/**
 	 *  
 	 * @return a reference to gbkfile

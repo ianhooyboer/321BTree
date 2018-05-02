@@ -1,3 +1,4 @@
+
 /**
  * CS 321 B-Tree Project Spring 2018
  * 
@@ -17,132 +18,131 @@ public class BTreeTest {
 		int degree = 2;
 		boolean useCache = true;
 		int cacheSize = 500;
+		int sequenceLength = 4;
+		int numElementsToAdd = 1;
 
-		BTree myBTree = new BTree(degree, file, useCache, cacheSize); // tests constructor
-		
+		BTree myBTree = new BTree(degree, file, useCache, cacheSize);
 		BTreeCache cache = new BTreeCache(cacheSize);
+		DNAParser testParser = new DNAParser(sequenceLength);
 
 		try {
+			numElementsToAdd = 8; // for testing, modify this number
+			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength);
 			
-			insertToEmptyTreeTest(myBTree, 3); // test inserting a key into BTree
-			insertToTreeTest(myBTree, 1);
-			insertToTreeIncrementTest(myBTree, 1);
-			keySearchTest(myBTree, 3);
-			
-			myBTree.insert(4);		
-			
-			myBTree.insert(6);
+			for (String s : ssG.getSSs()) {
+				// System.out.println(s);
+				long l = testParser.convertToKey(s);
+				myBTree.insert(l);
+			}
 
-			myBTree.insert(12);
-			
-			myBTree.insert(8123);
-			
-			myBTree.insert(823);
-			
-			myBTree.insert(43);
-			
-			System.out.println(myBTree.toString());	
-			
+			System.out.println(myBTree.toString());
+
 			// Cache testing
 			System.out.print("Cache Hits: " + cache.getHits() + "\n");
-			System.out.print("Cache Misses: " + cache.getMisses()+ "\n");
+			System.out.print("Cache Misses: " + cache.getMisses() + "\n");
 			System.out.print("Cache Ratio: " + cache.getHitRatio());
-			
-		
-		} catch (IOException e) {
+
+		} catch (Exception e) {
+			System.err.println(e.getMessage());
 			e.printStackTrace();
-		}		
+			System.exit(-1);
+		}
+
 	}
 
 	/**
 	 * Unit test of insert(), to be called immediately after creating a new BTree
 	 * 
-	 * @param tree the tree to insert into
-	 * @param testVal the value to insert
+	 * @param tree
+	 *            the tree to insert into
+	 * @param testVal
+	 *            the value to insert
 	 * @return true if the test succeeds, false otherwise
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	static boolean insertToEmptyTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertEmptyExpectedVal = new TreeObject(testVal);
-		
+
 		tree.insert(testVal);
-		
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertEmptyExpectedVal) == 0 &&
-				tree.getRoot().getNumKeys() == 1) {
+
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertEmptyExpectedVal) == 0
+				&& tree.getRoot().getNumKeys() == 1) {
 			System.out.println("insertToEmptyTreeTest: PASS");
 			return true;
-		}else if (tree.getRoot().getNumKeys() == 0) {
+		} else if (tree.getRoot().getNumKeys() == 0) {
 			System.out.println("insertToEmptyTreeTest: FAIL - no key inserted");
 			return false;
-		}else{
+		} else {
 			System.out.println("insertToEmptyTreeTest: FAIL - unexpected result");
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Unit test of insert(), to be called following insertToEmptyTreeTest()
 	 * 
-	 * @param tree the tree to insert into
-	 * @param testVal the value to insert
+	 * @param tree
+	 *            the tree to insert into
+	 * @param testVal
+	 *            the value to insert
 	 * @return true if the test succeeds, false otherwise
 	 * @throws IOException
 	 */
 	static boolean insertToTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertExpectedVal = new TreeObject(testVal);
-		
+
 		tree.insert(testVal);
-		
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertExpectedVal) == 0 &&
-				tree.getRoot().getNumKeys() == 2 &&
-				tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == -1) {
+
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertExpectedVal) == 0
+				&& tree.getRoot().getNumKeys() == 2
+				&& tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == -1) {
 			System.out.println("insertToTreeTest: PASS");
 			return true;
-		}else if (tree.getRoot().getNumKeys() < 2) {
+		} else if (tree.getRoot().getNumKeys() < 2) {
 			System.out.println("insertToTreeTest: FAIL - key not inserted");
 			return false;
-		}else if (tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == 1) {
+		} else if (tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == 1) {
 			System.out.println("insertToTreeTest: FAIL - keys not sorted");
 			return false;
-		}else {
+		} else {
 			System.out.println("insertToTreeTest: FAIL - unexpected result");
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Unit test of insert(), to be called following insertToTreeTest()
 	 * 
-	 * @param tree the tree to insert into
-	 * @param testVal the value to insert
+	 * @param tree
+	 *            the tree to insert into
+	 * @param testVal
+	 *            the value to insert
 	 * @return true if the test succeeds, false otherwise
 	 * @throws IOException
 	 */
 	static boolean insertToTreeIncrementTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertIncrementExpectedVal = new TreeObject(testVal);
-		
+
 		tree.insert(testVal);
-		
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertIncrementExpectedVal) == 0 &&
-				tree.getRoot().getNumKeys() == 2 &&
-				tree.getRoot().getKeys().get(0).getFrequency() == 2 ||
-				tree.getRoot().getKeys().get(1).getFrequency() == 2) {
+
+		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertIncrementExpectedVal) == 0
+				&& tree.getRoot().getNumKeys() == 2 && tree.getRoot().getKeys().get(0).getFrequency() == 2
+				|| tree.getRoot().getKeys().get(1).getFrequency() == 2) {
 			System.out.println("insertToTreeIncrementTest: PASS");
 			return true;
-		}else if (tree.getRoot().getNumKeys() < 2) {
+		} else if (tree.getRoot().getNumKeys() < 2) {
 			System.out.println("insertToTreeIncrementTest: FAIL - one key in node");
 			return false;
-		}else if (tree.getRoot().getNumKeys() == 3 &&
-				tree.getRoot().getKeys().get(0).getFrequency() == 1 &&
-				tree.getRoot().getKeys().get(1).getFrequency() == 1) {
+		} else if (tree.getRoot().getNumKeys() == 3 && tree.getRoot().getKeys().get(0).getFrequency() == 1
+				&& tree.getRoot().getKeys().get(1).getFrequency() == 1) {
 			System.out.println("insertToTreeIncrementTest: FAIL - key frequency not incremented, duplicate node added");
 			return false;
-		}else {
+		} else {
 			System.out.println("insertToTreeIncrementTest: FAIL - unexpected result");
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Unit test of keySearchTest
 	 * 
