@@ -37,7 +37,6 @@ public class BTree {
 	
 	private int degree;
 	private BTreeNode root;
-	private int nodeSize;
 	private int offsetFromRoot;
 	private RandomAccessFile randomAF;
 	private int blockSize;
@@ -57,7 +56,7 @@ public class BTree {
 	 * 				- size of cache used
 	 */
 	public BTree(int degree, File file, boolean useCache, int cacheSize) {
-		// block size = # of keys * size of keys + file offset of children * size of keys + metadata * size of keys
+		// block size = # of keys * size of keys + file offset of children * size of keys
 		blockSize = (KEY_SIZE * (2 * degree - 1));
 		offsetFromRoot =  (KEY_SIZE * (2 * degree));
 		blockInsert = blockSize + offsetFromRoot;
@@ -153,6 +152,7 @@ public class BTree {
 				
 				// set root
 				r.setOffset(blockSize);
+
 				r.setParent(s.getOffset());
 				
 				// set inserted node and add child to root offset
@@ -161,6 +161,7 @@ public class BTree {
 				
 				// split tree and insert key to non full node
 				splitTree(s, 0, r);
+				
 				insertNF(s, k);
 			}
 		} else insertNF(r, k);  // else insert key at non full root
@@ -217,14 +218,17 @@ public class BTree {
 		if(x == root && x.getNumKeys() == 1) {						// node being split is root and 1 key
 			try {
 				writeNode(y, blockInsert);							// write ith child node in new block
-				blockInsert += nodeSize;							
+				blockInsert += blockSize;	
+				
+				//System.out.println(i + " " + blockInsert + "\n");
 				
 				z.setOffset(blockInsert);								// set offset of new child to new block
-				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
-				writeNode(z, blockInsert);							// write new child in new block
+				x.addChildAtNode(z.getOffset(), i + 1);					// add ith + 1 child to x from z offset
+				writeNode(z, blockInsert);								// write new child in new block
 				
-				writeNode(x, offsetFromRoot);						// write parent node to offset from root
-				blockInsert += nodeSize;
+				writeNode(x, offsetFromRoot);							// write parent node to offset from root
+				
+				blockInsert += blockSize;
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
 				System.exit(-1);
@@ -238,7 +242,10 @@ public class BTree {
 				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				
 				writeNode(x, x.getOffset());						// write parent node at offset
-				blockSize += nodeSize;								// add a node memory size to block
+				blockInsert += blockSize;								// add a node memory size to block
+				
+				//System.out.println(i + " " + blockInsert + "\n");
+				
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
 				System.exit(-1);
@@ -259,7 +266,6 @@ public class BTree {
 	 * @throws IOException
 	 */
 	public void insertNF(BTreeNode x, long key) throws IOException {
-		// TODO write unit test(s)
 
 		// set int i to x.number of keys, declare tree object with key
 		int i = x.getNumKeys();
@@ -267,6 +273,8 @@ public class BTree {
 		
 		// if x is a leaf node
 		if(x.isLeaf()) {
+			
+			//System.out.println("1 " + x.getOffset() + "\n");
 			
 			//if keys exist
 			if(x.getNumKeys() != 0) {
@@ -287,15 +295,20 @@ public class BTree {
 			else {
 				x.addKeyAtNode(i, childKey);
 				x.setNumKeys(x.getNumKeys() + 1);
+				
+				//System.out.println("2 " + x.getOffset() + "\n");
 			}
 		
 			// writeNode(x, at offset)
 			writeNode(x, x.getOffset());
+			//System.out.println("3 " + x.getOffset() + "\n");
 		}
-		
 		// if x is not leaf node
 		//else while i > 0 and key < x.key at i (case for node not being leaf), decrememnt i
 		else {
+			
+			//System.out.println("1 " + x.getOffset() + "\n");
+			
 			while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
 				i--;
 			
@@ -305,12 +318,13 @@ public class BTree {
 				writeNode(x, x.getOffset());
 			}
 			
-			// readNode(child of node), get offset from x, create new node
-			int xOffset = x.getChild(i);
-			BTreeNode y = readNode(xOffset);
+			// readNode(child of node), create new node
+			BTreeNode y = readNode(x.getChild(i));
 			
 			// if amount of keys in child node == 2t - 1
 			if(y.getNumKeys() == 2 * degree - 1) {
+				
+				//System.out.println("2 " + x.getOffset() + "\n");
 				
 				// Same error checking as above but for child node
 				int j = y.getNumKeys();
@@ -335,9 +349,11 @@ public class BTree {
 				}
 			}
 			// insertNF(child node, key)
-			xOffset = x.getChild(i);
-			BTreeNode childNode = readNode(xOffset);
+			BTreeNode childNode = readNode(x.getChild(i));
+			
+			//System.out.println(x.getChild(i) + "\n");
 			insertNF(childNode, key);
+			//System.out.println(x.getChild(i)+ "\n");
 		}
 	}
 
@@ -530,7 +546,7 @@ public class BTree {
 		try {
 			randomAF.seek(0);
 			degree = randomAF.readInt();
-			nodeSize = randomAF.readInt();
+			blockSize = randomAF.readInt();
 			offsetFromRoot = randomAF.readInt();
 		} catch (IOException e) {
 			e.printStackTrace();
