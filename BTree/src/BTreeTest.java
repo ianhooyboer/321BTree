@@ -45,7 +45,7 @@ public class BTreeTest {
 	 * @return true if the test succeeds, false otherwise
 	 * @throws IOException 
 	 */
-	static boolean insertToEmptyTreeTest(BTree tree, long testVal) throws IOException {
+	static boolean insertToEmptyTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertEmptyExpectedVal = new TreeObject(testVal);
 		
 		tree.insert(testVal);
@@ -71,7 +71,7 @@ public class BTreeTest {
 	 * @return true if the test succeeds, false otherwise
 	 * @throws IOException
 	 */
-	static boolean insertToTreeTest(BTree tree, long testVal) throws IOException {
+	static boolean insertToTreeTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertExpectedVal = new TreeObject(testVal);
 		
 		tree.insert(testVal);
@@ -101,7 +101,7 @@ public class BTreeTest {
 	 * @return true if the test succeeds, false otherwise
 	 * @throws IOException
 	 */
-	static boolean insertToTreeIncrementTest(BTree tree, long testVal) throws IOException {
+	static boolean insertToTreeIncrementTest(BTree tree, int testVal) throws IOException {
 		TreeObject insertIncrementExpectedVal = new TreeObject(testVal);
 		
 		tree.insert(testVal);

@@ -299,10 +299,14 @@ public class BTree {
 		// if x is a leaf node
 		if(x.isLeaf()) {
 			
-			// case for x key being less than child key
-			// while i >= 0 && key < x.key at i, x.key at i + 1 = x.key at i, decrement i
-			while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
-				i--;
+			//if keys exist
+			if(x.getNumKeys() != 0) {
+			
+				// case for x key being less than child key
+				// while i >= 0 && key < x.key at i, x.key at i + 1 = x.key at i, decrement i
+				while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
+					i--;
+			}
 
 			// case for x key and child key being equal
 			if(i > 0 && childKey.compareTo(x.getKey(i - 1)) == 0)
@@ -339,12 +343,27 @@ public class BTree {
 			// if amount of keys in child node == 2t - 1
 			if(y.getNumKeys() == 2 * degree - 1) {
 				
-				// splitTree(x, i, child node)
-				splitTree(x, i, y);
+				// Same error checking as above but for child node
+				int j = y.getNumKeys();
 				
-				// if key > key of node at i, increment i
-				if(childKey.compareTo(x.getKey(i)) > 0)
+				while(j > 0 && childKey.compareTo(y.getKey(j - 1)) < 0)
+					j--;
+				
+				if(j > 0 && childKey.compareTo(y.getKey(j - 1)) == 0) {
+					y.getKey(j - 1).incrementFrequency();
+					
+					// write child node
+					writeNode(y, y.getOffset());
+				}
+				
+				else {
+					// splitTree(x, i, child node)
+					splitTree(x, i, y);
+				
+					// if key > key of node at i, increment i
+					if(childKey.compareTo(x.getKey(i)) > 0)
 					i++;
+				}
 			}
 			// insertNF(child node, key)
 			xOffset = x.getChild(i);
@@ -420,14 +439,14 @@ public class BTree {
 	public void writeNode(BTreeNode writeData, long fileOffset) throws IOException {
 		int count = 0;
 		
-		// cache functionality
+		/* cache functionality
 		if (cache != null) {
 			BTreeNode cachedNode = cache.addNode(writeData, fileOffset);
 			
 			if(cachedNode != null)
 				writeNode(cachedNode, cachedNode.getOffset());
 		} else
-			writeNode(writeData, fileOffset);
+			writeNode(writeData, fileOffset); */
 
 		try {
 			// Metadata
