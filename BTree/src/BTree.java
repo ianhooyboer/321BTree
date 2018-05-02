@@ -39,7 +39,7 @@ public class BTree {
 	private BTreeNode root;
 	private int offsetFromRoot;
 	private RandomAccessFile randomAF;
-	private int blockSize;
+	private int nodeSize;
 	private BTreeCache cache;
 	private int blockInsert;
 	
@@ -57,9 +57,9 @@ public class BTree {
 	 */
 	public BTree(int degree, File file, boolean useCache, int cacheSize) {
 		// block size = # of keys * size of keys + file offset of children * size of keys
-		blockSize = (KEY_SIZE * (2 * degree - 1));
+		nodeSize = (KEY_SIZE * (2 * degree - 1));
 		offsetFromRoot =  (KEY_SIZE * (2 * degree));
-		blockInsert = blockSize + offsetFromRoot;
+		blockInsert = nodeSize + offsetFromRoot;
 		this.degree = degree;
 		
 		// Cache option
@@ -151,7 +151,7 @@ public class BTree {
 				root = s;
 				
 				// set root
-				r.setOffset(blockSize);
+				r.setOffset(nodeSize);
 
 				r.setParent(s.getOffset());
 				
@@ -218,7 +218,7 @@ public class BTree {
 		if(x == root && x.getNumKeys() == 1) {						// node being split is root and 1 key
 			try {
 				writeNode(y, blockInsert);							// write ith child node in new block
-				blockInsert += blockSize;	
+				blockInsert += nodeSize;	
 				
 				//System.out.println(i + " " + blockInsert + "\n");
 				
@@ -228,7 +228,7 @@ public class BTree {
 				
 				writeNode(x, offsetFromRoot);							// write parent node to offset from root
 				
-				blockInsert += blockSize;
+				blockInsert += nodeSize;
 			} catch (IOException e) {
 				e.printStackTrace(System.err);
 				System.exit(-1);
@@ -242,7 +242,7 @@ public class BTree {
 				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				
 				writeNode(x, x.getOffset());						// write parent node at offset
-				blockInsert += blockSize;								// add a node memory size to block
+				blockInsert += nodeSize;								// add a node memory size to block
 				
 				//System.out.println(i + " " + blockInsert + "\n");
 				
@@ -531,7 +531,7 @@ public class BTree {
 		try {
 			randomAF.seek(0);
 			randomAF.writeInt(degree);
-			randomAF.writeInt(blockSize);
+			randomAF.writeInt(nodeSize);
 			randomAF.writeInt(offsetFromRoot);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -546,7 +546,7 @@ public class BTree {
 		try {
 			randomAF.seek(0);
 			degree = randomAF.readInt();
-			blockSize = randomAF.readInt();
+			nodeSize = randomAF.readInt();
 			offsetFromRoot = randomAF.readInt();
 		} catch (IOException e) {
 			e.printStackTrace();
