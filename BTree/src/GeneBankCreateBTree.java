@@ -85,6 +85,7 @@ public class GeneBankCreateBTree {
 				System.exit(-1);
 			}
 		}
+		System.out.println(myBTree.toString());
 	}
 
 	/**
