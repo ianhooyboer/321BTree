@@ -71,6 +71,7 @@ public class GeneBankCreateBTree {
 		for (String s : myParser.getSSs()) { // insert all SSs contained in the parser into the BTree
 			try {
 				long d = myParser.convertToKey(s);
+				System.out.println(d + "\t" + myParser.longToSubSequence(d, 12));
 				myBTree.insert(d);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();

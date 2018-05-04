@@ -135,9 +135,10 @@ public class BTree {
 	public void insert(long k) throws IOException {// TODO not tested
 		BTreeNode r = root;
 		int keyCount = r.getNumKeys();
-		TreeObject key = new TreeObject(k);
+		
 		
 		if (keyCount == (2 * degree - 1)) {
+			TreeObject key = new TreeObject(k);
 			// Conditions
 			// while keyCount > 0 and root has no room for keys, decrement # of keys in root
 			while(keyCount > 0 && key.compareTo(r.getKey(keyCount - 1)) < 0) keyCount --;
@@ -150,7 +151,7 @@ public class BTree {
 				s.setOffset(r.getOffset());
 				root = s;
 				
-				// set root
+				// set offset of root
 				r.setOffset(nodeSize);
 
 				r.setParent(s.getOffset());

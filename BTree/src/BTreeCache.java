@@ -106,7 +106,10 @@ public class BTreeCache implements Iterable<BTreeNode>{
 	 * @return hits divided by references 
 	 */
 	public long getHitRatio() {
-		return ((long) getHits() / ((long) getReferences() + 1));
+		if(getReferences() > 0) {
+			return ((long) getHits() / ((long) getReferences()));
+		} else
+			return 0;
 	}
 	
 	/**
