@@ -11,8 +11,8 @@ import java.io.IOException;
  * key to a string (from binary to a string character) - Converting a string
  * character to a key value (string to binary)
  * 
- * Usage is as follows: java GeneBankCreateBTree <0/1(no/with Cache)> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
- * 														0				 1			 2				3 			4 			5
+ * Usage is as follows: java GeneBankCreateBTree <0/1(no/with Cache)> <degree>
+ * <gbk file> <sequence length> <cache size> [<debug level>] 0 1 2 3 4 5
  *
  * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
  */
@@ -42,7 +42,7 @@ public class GeneBankCreateBTree {
 				} else {
 					cacheSize = Integer.parseInt(args[4]);
 				}
-				
+
 				if (args.length == 6) {
 					debugLevel = (Integer.parseInt(args[5]) == 1) ? 1 : 0;
 				}
@@ -58,20 +58,25 @@ public class GeneBankCreateBTree {
 		}
 
 		testArgs();
-		
-//		If the name of the GeneBank file is xyz.gbk, the sequence length is k, the BTree degree
-//		is t, then the name of the btree file should be: xyz.gbk.btree.data.k.t
-		String fileName = "test1.gbk.btree.data.31.4";
-		fileOut = new File(fileName);
-		
+
+		// If the name of the GeneBank file is xyz.gbk, the sequence length is k, the
+		// BTree degree
+		// is t, then the name of the btree file should be: xyz.gbk.btree.data.k.t
+		String fileOutName = gbkFile.getName();
+		fileOutName += ".btree.data.";
+		fileOutName += sequenceLength + ".";
+		fileOutName += degree;
+		fileOut = new File(fileOutName);
+		System.out.println(fileOut.getName());
+
 		// Create parser(filename, subSequenceLength)
 		DNAParser myParser = new DNAParser(gbkFile, sequenceLength);
-		BTree myBTree = new BTree(degree, fileOut, useCache, cacheSize);
-		
+		BTree myBTree = new BTree(degree, fileOut, useCache, cacheSize, sequenceLength);
+
 		for (String s : myParser.getSSs()) { // insert all SSs contained in the parser into the BTree
 			try {
 				long d = myParser.convertToKey(s);
-				System.out.println(d + "\t" + myParser.longToSubSequence(d, 5));
+				System.out.println(d + "\t" + myParser.longToSubSequence(d));
 				myBTree.insert(d);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
@@ -81,11 +86,6 @@ public class GeneBankCreateBTree {
 				System.exit(-1);
 			}
 		}
-		
-		//TODO write this BTree to a file to be used by GeneBankSearch
-		
-		System.out.println(myBTree); //demonstrating wonky BTree behavior at time of writing
-
 	}
 
 	/**
@@ -99,16 +99,17 @@ public class GeneBankCreateBTree {
 		buf += "Reading from a file: " + gbkFile.getName() + ",\n";
 		buf += "generating sequences of size: " + sequenceLength + ", ";
 		buf += (debugLevel == -1) ? " with no debug level." : "with debug level: " + debugLevel;
-		
+
 		System.out.println(buf);
 	}
-	
+
 	/**
 	 * Prints usage instructions, and exits with an unsuccessful exit code.
 	 */
 	private static void exitWithUsage() {
 		System.err.println("Usage is as follows:");
-		System.err.println("java GeneBankCreateBTree <0/1(no/with Cache)> <degree> <gbk file> <sequence length> <cache size> [<debug level>]");
+		System.err.println(
+				"java GeneBankCreateBTree <0/1(no/with Cache)> <degree> <gbk file> <sequence length> <cache size> [<debug level>]");
 		System.exit(-1);
 
 	}

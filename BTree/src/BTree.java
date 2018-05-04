@@ -42,6 +42,7 @@ public class BTree {
 	private int nodeSize;
 	private BTreeCache cache;
 	private int blockInsert;
+	private int sequenceLength;
 	
 	/**
 	 * Standard constructor for BTree object
@@ -54,13 +55,16 @@ public class BTree {
 	 * 				- boolean to determine if cache is used
 	 * @param cacheSize
 	 * 				- size of cache used
+	 * @param sequenceLength
+	 * 				- size of sequences stored in this BTree
 	 */
-	public BTree(int degree, File file, boolean useCache, int cacheSize) {
+	public BTree(int degree, File file, boolean useCache, int cacheSize, int sequenceLength) {
 		// block size = # of keys * size of keys + file offset of children * size of keys
 		nodeSize = (KEY_SIZE * (2 * degree - 1));
 		offsetFromRoot =  (KEY_SIZE * (2 * degree));
 		blockInsert = nodeSize + offsetFromRoot;
 		this.degree = degree;
+		this.sequenceLength = sequenceLength;
 		
 		// Cache option
 		if(useCache) 
@@ -492,13 +496,13 @@ public class BTree {
 	}
 
 	/**
-	 * Overrides standard toString() method. Used for testing to see contents of
-	 * BTree.
+	 * Overrides standard toString() method.
 	 * 
 	 */
 	@Override
 	public String toString() {
-		String buf = "\n";
+		String buf = "<frequency> <DNA string>\n";
+		DNAParser dummy = new DNAParser(sequenceLength);
 		ArrayDeque<BTreeNode> myQ = new ArrayDeque<BTreeNode>();
 		myQ.add(root);
 
@@ -513,8 +517,11 @@ public class BTree {
 				}
 			}
 
-			buf += d.toString() + "\n"; // returns a linear list of nodes for now
-		} // will come up with a more 'tree-like' representation
+			for (TreeObject to : d.getKeys()) {
+				String w = dummy.longToSubSequence(to.getData());
+				buf += to.getFrequency() + "\t\t" + w + "\n";
+			}
+		} 
 
 		return buf;
 	}
@@ -527,6 +534,7 @@ public class BTree {
 		try {
 			randomAF.seek(0);
 			randomAF.writeInt(degree);
+			randomAF.writeInt(sequenceLength);
 			randomAF.writeInt(nodeSize);
 			randomAF.writeInt(offsetFromRoot);
 		} catch (IOException e) {
@@ -542,6 +550,7 @@ public class BTree {
 		try {
 			randomAF.seek(0);
 			degree = randomAF.readInt();
+			sequenceLength = randomAF.readInt();
 			nodeSize = randomAF.readInt();
 			offsetFromRoot = randomAF.readInt();
 		} catch (IOException e) {

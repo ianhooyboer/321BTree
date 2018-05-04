@@ -21,7 +21,7 @@ public class BTreeTest {
 		int sequenceLength = 5;
 		int numElementsToAdd = 1;
 		
-		BTree myBTree = new BTree(degree, file, useCache, cacheSize);
+		BTree myBTree = new BTree(degree, file, useCache, cacheSize, sequenceLength);
 		BTreeCache cache = new BTreeCache(cacheSize);
 		DNAParser testParser = new DNAParser(sequenceLength);
 

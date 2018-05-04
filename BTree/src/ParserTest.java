@@ -11,11 +11,11 @@ public class ParserTest {
 		
 		long data = myParser.nextSubSeq();
 		System.out.println(data);
-		System.out.println(myParser.longToSubSequence(data, k));
+		System.out.println(myParser.longToSubSequence(data));
 		
 		data = myParser.nextSubSeq();
 		System.out.println(data);
-		System.out.println(myParser.longToSubSequence(data, k));
+		System.out.println(myParser.longToSubSequence(data));
 		
 	}
 	

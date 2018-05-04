@@ -164,7 +164,7 @@ public class DNAParser {
 	 * @param k - length of sequence
 	 * @return converted string
 	 */
-	public String longToSubSequence(long key, int k) {
+	public String longToSubSequence(long key) {
 		String res = "";
 
 		for (int i = 0; i < k; i++) {
