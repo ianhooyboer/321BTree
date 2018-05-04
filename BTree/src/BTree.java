@@ -135,8 +135,7 @@ public class BTree {
 	public void insert(long k) throws IOException {// TODO not tested
 		BTreeNode r = root;
 		int keyCount = r.getNumKeys();
-		
-		
+	
 		if (keyCount == (2 * degree - 1)) {
 			TreeObject key = new TreeObject(k);
 			// Conditions
@@ -165,7 +164,11 @@ public class BTree {
 				
 				insertNF(s, k);
 			}
-		} else insertNF(r, k);  // else insert key at non full root
+		} else if(keyCount < (2 * degree - 1))
+				insertNF(r, k);  // else insert key at non full root
+		
+		else System.out.println("Failure in max keys");
+		
 	}
 
 	/**
@@ -348,13 +351,14 @@ public class BTree {
 					if(childKey.compareTo(x.getKey(i)) > 0)
 						i++;
 				}
-			}
-			// insertNF(child node, key)
-			BTreeNode childNode = readNode(x.getChild(i));
+			} else if(y.getNumKeys() < (2 * degree - 1)) {
+				// insertNF(child node, key)
+				BTreeNode childNode = readNode(x.getChild(i));
 			
-			//System.out.println(x.getChild(i) + "\n");
-			insertNF(childNode, key);
-			//System.out.println(x.getChild(i)+ "\n");
+				//System.out.println(x.getChild(i) + "\n");
+				insertNF(childNode, key);
+				//System.out.println(x.getChild(i)+ "\n");
+			} else System.out.println("Failure in max keys of child node");
 		}
 	}
 
