@@ -15,10 +15,10 @@ public class BTreeTest {
 	public static void main(String[] args) {
 		String filename = "myTest.txt";
 		File file = new File(filename);
-		int degree = 2;
+		int degree = 3;
 		boolean useCache = true;
-		int cacheSize = 500;
-		int sequenceLength = 4;
+		int cacheSize = 1000;
+		int sequenceLength = 5;
 		int numElementsToAdd = 1;
 
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize);
@@ -41,7 +41,12 @@ public class BTreeTest {
 			 * 		-Ian
 			 */
 			
-			numElementsToAdd = 3; // for testing, modify this number
+			numElementsToAdd = 6; // for testing, modify this number
+			
+			System.out.println("|Degree = " + degree + "|\t|Min # of children = " + degree + "|\t|Max # of children = " + (2 * degree) +
+					"|\t|Max # of keys = " + (2 * degree - 1) + "|\t|Min number of keys = " + (degree - 1) + "|\t|Height = " 
+					+ (int) (Math.log(2 * degree + 1) / Math.log(2 * degree)) + "|");
+			
 			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength, false);
 						
 			for (String s : ssG.getSSs()) {

@@ -137,7 +137,7 @@ public class BTree {
 		int keyCount = r.getNumKeys();
 		TreeObject key = new TreeObject(k);
 		
-		if (keyCount == ((2 * degree - 1))) {
+		if (keyCount == (2 * degree - 1)) {
 			// Conditions
 			// while keyCount > 0 and root has no room for keys, decrement # of keys in root
 			while(keyCount > 0 && key.compareTo(r.getKey(keyCount - 1)) < 0) keyCount --;
@@ -322,7 +322,7 @@ public class BTree {
 			BTreeNode y = readNode(x.getChild(i));
 			
 			// if amount of keys in child node == 2t - 1
-			if(y.getNumKeys() == 2 * degree - 1) {
+			if(y.getNumKeys() == (2 * degree - 1)) {
 				
 				//System.out.println("2 " + x.getOffset() + "\n");
 				
@@ -345,7 +345,7 @@ public class BTree {
 				
 					// if key > key of node at i, increment i
 					if(childKey.compareTo(x.getKey(i)) > 0)
-					i++;
+						i++;
 				}
 			}
 			// insertNF(child node, key)
@@ -396,15 +396,15 @@ public class BTree {
 					nodeObject = new TreeObject(randomAF.readLong(), randomAF.readInt());
 					readData.addKeyToRear(nodeObject);
 				}
-
+				
 				// If count is less than number of keys in node and not leaf
 				if (count < readData.getNumKeys() + 1 && !readData.isLeaf()) {
 					readData.addChildToRear(randomAF.readInt());
 				}
-
+				
 				// If count is greater/equal to number of keys in node or leaf
 				else if (count >= readData.getNumKeys() + 1 || readData.isLeaf()) {
-					randomAF.seek(randomAF.getFilePointer() + fileOffset);
+					randomAF.seek(randomAF.getFilePointer() + KEY_SIZE);
 				}
 			}
 
