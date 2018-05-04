@@ -94,6 +94,29 @@ public class BTree {
 		}
 		writeMetadata();
 	}
+	
+	/**
+	 * constructor to read in BTree from file
+	 */
+	public BTree(File BTreeFile) {
+		try {
+			this.randomAF = new RandomAccessFile(BTreeFile, "r");
+			
+			readMetadata();
+			
+			offsetFromRoot =  (KEY_SIZE * (2 * degree));			
+			root = readNode(offsetFromRoot);
+						
+			
+		} catch(FileNotFoundException e) {
+			e.printStackTrace(System.err);
+			System.err.println("File: " + BTreeFile.getName() + " not found.\n");
+			System.exit(-1);
+		} catch(IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}
+	}
 
 	/**
 	 * Searches BTree for a Key.
@@ -494,6 +517,14 @@ public class BTree {
 	public BTreeNode getRoot() {
 		return root;
 	}
+	
+	public int getSequenceLength() {
+		return sequenceLength;
+	}
+	
+	public int getDegree() {
+		return degree;
+	}
 
 	/**
 	 * Overrides standard toString() method.
@@ -501,6 +532,28 @@ public class BTree {
 	 */
 	@Override
 	public String toString() {
+		String buf = "\n";
+		ArrayDeque<BTreeNode> myQ = new ArrayDeque<BTreeNode>();
+		myQ.add(root);
+
+		while (!myQ.isEmpty()) { // breadth-first traversal
+			BTreeNode d = myQ.remove();
+
+			for (Integer fileOffset : d.getChildren()) {
+				BTreeNode e = readNode(fileOffset);
+
+				if (e != null) {
+					myQ.add(e);
+				}
+			}
+
+			buf += d.toString() + "\n"; // returns a linear list of nodes for now
+		} // will come up with a more 'tree-like' representation
+
+		return buf;
+	}
+	
+	private String dumpString() {
 		String buf = "<frequency> <DNA string>\n";
 		DNAParser dummy = new DNAParser(sequenceLength);
 		ArrayDeque<BTreeNode> myQ = new ArrayDeque<BTreeNode>();
@@ -524,6 +577,29 @@ public class BTree {
 		} 
 
 		return buf;
+	}
+	
+	public void dumpTree() {
+		File dumpFile = new File("dump.txt");
+		
+		try {
+			if(dumpFile.exists()) dumpFile.delete();    			// clear file if exists
+			dumpFile.createNewFile();  							// create new file
+			randomAF = new RandomAccessFile(dumpFile, "rw");	// create new random access file set for both read and write
+			randomAF.seek(0);			
+			String toWrite = this.dumpString();
+			randomAF.writeBytes(toWrite);
+			
+		} catch(FileNotFoundException e) {
+			e.printStackTrace(System.err);
+			System.err.println("File: " + dumpFile.getName() + " not found.\n");
+			System.exit(-1);
+		} catch(IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}
+		
+		
 	}
 	
 	// Metadata classes
@@ -558,4 +634,6 @@ public class BTree {
 			System.exit(-1);
 		}
 	}
+
+	
 }

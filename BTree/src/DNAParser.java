@@ -8,6 +8,8 @@
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -196,5 +198,34 @@ public class DNAParser {
 	
 	public ArrayList<String> getSSs() {
 		return SSs;
+	}
+	
+	public void dumpParser() {
+		File dumpFile = new File("parserDump.txt");
+
+		try {
+			if (dumpFile.exists())
+				dumpFile.delete(); // clear file if exists
+			dumpFile.createNewFile(); // create new file
+			RandomAccessFile randomAF = new RandomAccessFile(dumpFile, "rw"); // create new random access file set for both read and
+																// write
+			// randomAF.seek(0);
+
+			String toWrite = "";
+			
+			for (String s : this.getSSs()) {
+				toWrite += s + "\n";
+			}
+			
+			
+			randomAF.writeBytes(toWrite);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace(System.err);
+			System.err.println("File: " + dumpFile.getName() + " not found.\n");
+			System.exit(-1);
+		} catch (IOException e) {
+			e.printStackTrace(System.err);
+			System.exit(-1);
+		}
 	}
 }

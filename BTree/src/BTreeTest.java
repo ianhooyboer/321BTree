@@ -16,9 +16,9 @@ public class BTreeTest {
 		String filename = "myTest.txt";
 		File file = new File(filename);
 		int degree = 5;
-		boolean useCache = true;
+		boolean useCache = false;
 		int cacheSize = 10000;
-		int sequenceLength = 5;
+		int sequenceLength = 31;
 		int numElementsToAdd = 1;
 		
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize, sequenceLength);
@@ -43,13 +43,13 @@ public class BTreeTest {
 			 * 3 May 18 - >= 26 numElementsToAdd intermittent, stack overflow at 29 --Eric
 			 */
 			
-			numElementsToAdd = 25; // for testing, modify this number
+			numElementsToAdd = 35; // for testing, modify this number
 			
 			System.out.println("|Degree = " + degree + "|\t|Min # of children = " + degree + "|\t|Max # of children = " + (2 * degree) +
 					"|\t|Max # of keys = " + (2 * degree - 1) + "|\t|Min number of keys = " + (degree - 1) + "|\t|Height = " 
 					+ (int) (Math.log(2 * degree + 1) / Math.log(2 * degree)) + "|");
 			
-			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength, false);
+			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength, true);
 						
 			for (String s : ssG.getSSs()) {
 //				System.out.println(s); // to see subsequences before they are added
@@ -57,108 +57,17 @@ public class BTreeTest {
 				myBTree.insert(l);
 			}
 
-			System.out.println(myBTree.toString()); //prints out final btree
+			myBTree.dumpTree(); //dumps out final btree
 
 			// Cache testing
 			System.out.print("Cache Hits: " + cache.getHits() + "\n");
 			System.out.print("Cache Misses: " + cache.getMisses() + "\n");
 			System.out.print("Cache Ratio: " + cache.getHitRatio());
-			
-
-
+		
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
 			e.printStackTrace();
 			System.exit(-1);
 		}
-
 	}
-	
-	
-	
-
-	/* These need to be redone
-	
-	static boolean insertToEmptyTreeTest(BTree tree, int testVal) throws IOException {
-		TreeObject insertEmptyExpectedVal = new TreeObject(testVal);
-
-		tree.insert(testVal);
-
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertEmptyExpectedVal) == 0
-				&& tree.getRoot().getNumKeys() == 1) {
-			System.out.println("insertToEmptyTreeTest: PASS");
-			return true;
-		} else if (tree.getRoot().getNumKeys() == 0) {
-			System.out.println("insertToEmptyTreeTest: FAIL - no key inserted");
-			return false;
-		} else {
-			System.out.println("insertToEmptyTreeTest: FAIL - unexpected result");
-			return false;
-		}
-	}
-
-	static boolean insertToTreeTest(BTree tree, int testVal) throws IOException {
-		TreeObject insertExpectedVal = new TreeObject(testVal);
-
-		tree.insert(testVal);
-
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertExpectedVal) == 0
-				&& tree.getRoot().getNumKeys() == 2
-				&& tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == -1) {
-			System.out.println("insertToTreeTest: PASS");
-			return true;
-		} else if (tree.getRoot().getNumKeys() < 2) {
-			System.out.println("insertToTreeTest: FAIL - key not inserted");
-			return false;
-		} else if (tree.getRoot().getKeys().get(0).compareTo(tree.getRoot().getKeys().get(1)) == 1) {
-			System.out.println("insertToTreeTest: FAIL - keys not sorted");
-			return false;
-		} else {
-			System.out.println("insertToTreeTest: FAIL - unexpected result");
-			return false;
-		}
-	}
-
-	static boolean insertToTreeIncrementTest(BTree tree, int testVal) throws IOException {
-		TreeObject insertIncrementExpectedVal = new TreeObject(testVal);
-
-		tree.insert(testVal);
-
-		if (tree.keySearch(tree.getRoot(), testVal).compareTo(insertIncrementExpectedVal) == 0
-				&& tree.getRoot().getNumKeys() == 2 && tree.getRoot().getKeys().get(0).getFrequency() == 2
-				|| tree.getRoot().getKeys().get(1).getFrequency() == 2) {
-			System.out.println("insertToTreeIncrementTest: PASS");
-			return true;
-		} else if (tree.getRoot().getNumKeys() < 2) {
-			System.out.println("insertToTreeIncrementTest: FAIL - one key in node");
-			return false;
-		} else if (tree.getRoot().getNumKeys() == 3 && tree.getRoot().getKeys().get(0).getFrequency() == 1
-				&& tree.getRoot().getKeys().get(1).getFrequency() == 1) {
-			System.out.println("insertToTreeIncrementTest: FAIL - key frequency not incremented, duplicate node added");
-			return false;
-		} else {
-			System.out.println("insertToTreeIncrementTest: FAIL - unexpected result");
-			return false;
-		}
-	}
-
-	static boolean keySearchTest(BTree tree, long testVal) {
-		long kstExpectedVal = testVal;
-		TreeObject keySearchTestNode = tree.keySearch(tree.getRoot(), kstExpectedVal);
-
-		if (keySearchTestNode != null) {
-			if (keySearchTestNode.getData() == kstExpectedVal) {
-				System.out.println("keySearchTest: PASS");
-				return true;
-			} else {
-				System.out.println("keySearchTest: FAIL - returned unexpected value");
-				return false;
-			}
-		} else {
-			System.out.println("keySearchTest: FAIL - returned null");
-			return false;
-		}
-	}
-	
-	*/
 }

@@ -12,7 +12,7 @@ import java.io.IOException;
  * character to a key value (string to binary)
  * 
  * Usage is as follows: java GeneBankCreateBTree <0/1(no/with Cache)> <degree>
- * <gbk file> <sequence length> <cache size> [<debug level>] 0 1 2 3 4 5
+ * <gbk file> <sequence length> <cache size> [<debug level>]
  *
  * @author Eric Hieronymus, Ian Hooyboer, and Parker Crawford
  */
@@ -85,7 +85,13 @@ public class GeneBankCreateBTree {
 				System.exit(-1);
 			}
 		}
-		System.out.println(myBTree.toString());
+		
+		if (debugLevel == 1) {
+			myBTree.dumpTree();
+		}else {
+			System.out.println(myBTree.toString());
+		}
+//		myParser.dumpParser();
 	}
 
 	/**

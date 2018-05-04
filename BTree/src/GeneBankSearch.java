@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.util.Scanner;
 
 /**
  * CS 321 B-Tree Project Spring 2018
@@ -19,30 +20,6 @@ import java.io.RandomAccessFile;
 
 public class GeneBankSearch {
 
-	private class MetaData {
-
-		public int degree;
-		public int sequenceLength;
-
-		public MetaData(File BTreeFile) {
-			try {
-				RandomAccessFile randomAF = new RandomAccessFile(BTreeFile, "r");
-
-				this.degree = randomAF.readInt();
-				this.sequenceLength = randomAF.readInt();
-			} catch (FileNotFoundException e) {
-				e.printStackTrace(System.err);
-				System.err.println("File: " + BTreeFile.getName() + " not found.\n");
-				System.exit(-1);
-			} catch (IOException e) {
-				e.printStackTrace(System.err);
-				System.exit(-1);
-			}
-
-		}
-
-	}
-
 	// -------------------Variables-------------------
 	private static boolean useCache;
 	private static File BTreeFile; // file to read BTree from (generated from GeneBankCreateBTree)
@@ -50,8 +27,9 @@ public class GeneBankSearch {
 	private static int cacheSize;
 	private static int debugLevel = 0;
 
-	private static int degree, sequence;
-	private File filename;
+	private static int degree, sequenceLength;
+	
+	private static BTree treeFromFile;
 
 	public static void main(String[] args) {
 
@@ -77,6 +55,44 @@ public class GeneBankSearch {
 
 		} else
 			exitWithUsage();
+		
+		
+		
+		
+		
+		treeFromFile = new BTree(BTreeFile);	
+		BTreeNode root = treeFromFile.getRoot();
+		
+		testArgs();
+		
+		
+		
+		DNAParser parser = new DNAParser(treeFromFile.getSequenceLength());
+		try {
+			Scanner queryScan = new Scanner(QueryFile);
+			
+			while (queryScan.hasNextLine()) {
+				String next = queryScan.nextLine();
+				
+//				System.out.println("Searching for " + next + "(" + parser.convertToKey(next) + ")");
+				
+				if (root.getKeys().isEmpty()) {
+					System.err.println("Root has no keys");
+					System.out.println(treeFromFile);
+					System.exit(-1);					
+				}else {
+					treeFromFile.keySearch(root, parser.convertToKey(next));
+				}				
+			}
+			
+			queryScan.close();
+			
+		} catch (FileNotFoundException e) {
+			System.err.println("File: " + QueryFile.getName() + " not found.\n");
+			System.exit(-1);
+		}
+		
+		
 
 		// get degree and subsequence length from BTree file
 		// - write degree as first int in file or first item in node = degree
@@ -87,6 +103,22 @@ public class GeneBankSearch {
 
 	}
 
+	
+	/**
+	 * Prints out current args, for testing
+	 */
+	private static void testArgs() {
+		String buf = "";
+		buf += (useCache == true) ? "Using cache " : "Not using cache ";
+		buf += (useCache == true) ? "of size " + cacheSize : "";
+		buf += " for a tree of degree of " + treeFromFile.getDegree() + ". ";
+		buf += "Reading from a file: " + BTreeFile.getName() + ",\n";
+		buf += "generating sequences of size: " + treeFromFile.getSequenceLength() + ", ";
+		buf += (debugLevel == -1) ? " with no debug level." : "with debug level: " + debugLevel;
+
+		System.out.println(buf);
+	}
+	
 	private static void exitWithUsage() {
 		System.err.println("Usage is as follows:");
 		System.err.println(
