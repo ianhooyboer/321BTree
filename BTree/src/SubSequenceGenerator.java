@@ -4,15 +4,10 @@ import java.util.Random;
 public class SubSequenceGenerator {
 
 	private ArrayList<String> SSs;
-	private int numSeqs;
-	private int ssLength;
 	private boolean seeded;
 	Random rand;
 
 	public SubSequenceGenerator(int numSeqs, int ssLength, boolean seeded) {
-
-		this.numSeqs = numSeqs;
-		this.ssLength = ssLength;
 		this.seeded = (seeded == true) ? true : false;
 		if (this.seeded) rand = new Random(1);
 

@@ -2,8 +2,6 @@
 // -------------------Libraries-------------------
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.RandomAccessFile;
 import java.util.Scanner;
 
 /**
@@ -26,8 +24,6 @@ public class GeneBankSearch {
 	private static File QueryFile; // file with all possible sequences of specified length (provided)
 	private static int cacheSize;
 	private static int debugLevel = 0;
-
-	private static int degree, sequenceLength;
 	
 	private static BTree treeFromFile;
 

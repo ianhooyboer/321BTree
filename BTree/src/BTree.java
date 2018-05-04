@@ -112,9 +112,6 @@ public class BTree {
 			e.printStackTrace(System.err);
 			System.err.println("File: " + BTreeFile.getName() + " not found.\n");
 			System.exit(-1);
-		} catch(IOException e) {
-			e.printStackTrace(System.err);
-			System.exit(-1);
 		}
 	}
 

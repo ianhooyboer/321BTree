@@ -51,6 +51,10 @@ public class BTreeNode {
 	public void setLeafStatus(boolean leafStatus) {
 		this.isLeaf = leafStatus;
 	}
+	
+	public boolean getLeafStatus() {
+		return isLeaf;
+	}
 
 	// fileOffset mutators
 	public int getOffset() {

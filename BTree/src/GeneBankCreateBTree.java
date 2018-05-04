@@ -68,11 +68,10 @@ public class GeneBankCreateBTree {
 		fileOutName += degree;
 		fileOut = new File(fileOutName);
 
-		// Create parser(filename, subSequenceLength)
 		DNAParser myParser = new DNAParser(gbkFile, sequenceLength);
 		BTree myBTree = new BTree(degree, fileOut, useCache, cacheSize, sequenceLength);
 
-		for (String s : myParser.getSSs()) { // insert all SSs contained in the parser into the BTree
+		for (String s : myParser.getSSs()) {
 			try {
 				long d = myParser.convertToKey(s);
 //				System.out.println(d + "\t" + myParser.longToSubSequence(d));

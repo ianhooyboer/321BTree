@@ -8,7 +8,6 @@
  */
 
 import java.io.File;
-import java.io.IOException;
 
 public class BTreeTest {
 
@@ -18,7 +17,7 @@ public class BTreeTest {
 		int degree = 5;
 		boolean useCache = false;
 		int cacheSize = 10000;
-		int sequenceLength = 31;
+		int sequenceLength = 2;
 		int numElementsToAdd = 1;
 		
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize, sequenceLength);
@@ -37,13 +36,9 @@ public class BTreeTest {
 			 * additionally, the third Boolean argument of the SubSequenceGenerator locks it into the same seeded sequence of randoms.
 			 * 
 			 * 
-			 * At the time of writing, the BTree breaks down about 9-12 elements.   
-			 * 		-Ian
-			 * 
 			 * 3 May 18 - >= 26 numElementsToAdd intermittent, stack overflow at 29 --Eric
 			 */
-			
-			numElementsToAdd = 35; // for testing, modify this number
+			numElementsToAdd = 35; // for testing, modify these number
 			
 			System.out.println("|Degree = " + degree + "|\t|Min # of children = " + degree + "|\t|Max # of children = " + (2 * degree) +
 					"|\t|Max # of keys = " + (2 * degree - 1) + "|\t|Min number of keys = " + (degree - 1) + "|\t|Height = " 
@@ -52,13 +47,14 @@ public class BTreeTest {
 			SubSequenceGenerator ssG = new SubSequenceGenerator(numElementsToAdd, sequenceLength, true);
 						
 			for (String s : ssG.getSSs()) {
-//				System.out.println(s); // to see subsequences before they are added
 				long l = testParser.convertToKey(s);
 				myBTree.insert(l);
 			}
 
-			myBTree.dumpTree(); //dumps out final btree
-
+			
+			myBTree.dumpTree(); //dumps out final btree to file
+			System.out.println(myBTree.toString());
+			
 			// Cache testing
 			System.out.print("Cache Hits: " + cache.getHits() + "\n");
 			System.out.print("Cache Misses: " + cache.getMisses() + "\n");

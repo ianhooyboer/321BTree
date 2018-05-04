@@ -205,11 +205,9 @@ public class DNAParser {
 
 		try {
 			if (dumpFile.exists())
-				dumpFile.delete(); // clear file if exists
-			dumpFile.createNewFile(); // create new file
-			RandomAccessFile randomAF = new RandomAccessFile(dumpFile, "rw"); // create new random access file set for both read and
-																// write
-			// randomAF.seek(0);
+				dumpFile.delete();
+			dumpFile.createNewFile();
+			RandomAccessFile randomAF = new RandomAccessFile(dumpFile, "rw");
 
 			String toWrite = "";
 			
@@ -219,6 +217,7 @@ public class DNAParser {
 			
 			
 			randomAF.writeBytes(toWrite);
+			randomAF.close();
 		} catch (FileNotFoundException e) {
 			e.printStackTrace(System.err);
 			System.err.println("File: " + dumpFile.getName() + " not found.\n");
