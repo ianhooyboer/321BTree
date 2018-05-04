@@ -164,11 +164,7 @@ public class BTree {
 				
 				insertNF(s, k);
 			}
-		} else if(keyCount < (2 * degree - 1))
-				insertNF(r, k);  // else insert key at non full root
-		
-		else System.out.println("Failure in max keys");
-		
+		} else insertNF(r, k);  // else insert key at non full root
 	}
 
 	/**
@@ -185,7 +181,7 @@ public class BTree {
 	 * @param x
 	 *            	- node being split
 	 * @param i
-	 *            	- child number
+	 *            	- where to split
 	 * @param y		
 	 *				- x's ith child node 
 	 */
@@ -269,96 +265,96 @@ public class BTree {
 	 *            - key within the node
 	 * @throws IOException
 	 */
-	public void insertNF(BTreeNode x, long key) throws IOException {
+	public void insertNF(BTreeNode nFNode, long key) throws IOException {
 
-		// set int i to x.number of keys, declare tree object with key
-		int i = x.getNumKeys();
-		TreeObject childKey = new TreeObject(key);
+		// set keysInNFNode to number of keys in nonFullNode, declare tree object with key
+		int NFNode_Keys = nFNode.getNumKeys();
+		TreeObject insertedKey = new TreeObject(key);
 		
-		// if x is a leaf node
-		if(x.isLeaf()) {
-			
-			//System.out.println("1 " + x.getOffset() + "\n");
+		//System.out.println("\t\t1: " + NFNode_Keys);
+		
+		// if nFNode is a leaf node
+		if(nFNode.isLeaf()) {
 			
 			//if keys exist
-			if(x.getNumKeys() != 0) {
-			
-				// case for x key being less than child key
-				// while i >= 0 && key < x.key at i, x.key at i + 1 = x.key at i, decrement i
-				while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
-					i--;
+			if(nFNode.getNumKeys() != 0) {
+				
+				//System.out.println("\t\t2: " + NFNode_Keys);
+				
+				// case for nFNode key being less than inserted Key
+				// while more than 0 keys in nFNode and insertedKey is less than last key in nFNode
+				while(NFNode_Keys > 0 && insertedKey.compareTo(nFNode.getKey(NFNode_Keys - 1)) < 0) {
+					// number of keys in nFNode decrease
+					NFNode_Keys--;
+				}
 			}
 
-			// case for x key and child key being equal
-			if(i > 0 && childKey.compareTo(x.getKey(i - 1)) == 0)
-				x.getKey(i - 1).incrementFrequency();
+			// case for nFNode key and inserted Key being equal
+			// if more than 0 keys in nFNode and inserted Key and last key in nFNode are equal
+			if(NFNode_Keys > 0 && insertedKey.compareTo(nFNode.getKey(NFNode_Keys - 1)) == 0)
+				// increment frequency of same key in node
+				nFNode.getKey(NFNode_Keys - 1).incrementFrequency();
 			
-			// case for x key larger than child key
-			// x.key at i + 1 = key
-			// number of keys in node increment by 1
+			// case for inserted Key greater
 			else {
-				x.addKeyAtNode(i, childKey);
-				x.setNumKeys(x.getNumKeys() + 1);
+				// add inserted Key to end of nFNode
+				nFNode.addKeyAtNode(NFNode_Keys, insertedKey);
 				
-				//System.out.println("2 " + x.getOffset() + "\n");
+				// increase number of keys in nFNode
+				nFNode.setNumKeys(nFNode.getNumKeys() + 1);
 			}
 		
-			// writeNode(x, at offset)
-			writeNode(x, x.getOffset());
-			//System.out.println("3 " + x.getOffset() + "\n");
+			// writeNode to file
+			writeNode(nFNode, nFNode.getOffset());
 		}
-		// if x is not leaf node
-		//else while i > 0 and key < x.key at i (case for node not being leaf), decrememnt i
+		// for when nFNode not a leaf node
 		else {
+			// same condition checks and adjustments for node
+			while(NFNode_Keys > 0 && insertedKey.compareTo(nFNode.getKey(NFNode_Keys - 1)) < 0)
+				NFNode_Keys--;
 			
-			//System.out.println("1 " + x.getOffset() + "\n");
-			
-			while(i > 0 && childKey.compareTo(x.getKey(i - 1)) < 0)
-				i--;
-			
-			// Same tests as when x was leaf
-			if(i > 0 && childKey.compareTo(x.getKey(i - 1)) == 0) {
-				x.getKey(i - 1).incrementFrequency();
-				writeNode(x, x.getOffset());
+			if(NFNode_Keys > 0 && insertedKey.compareTo(nFNode.getKey(NFNode_Keys - 1)) == 0) {
+				nFNode.getKey(NFNode_Keys - 1).incrementFrequency();
+				writeNode(nFNode, nFNode.getOffset());
 			}
 			
-			// readNode(child of node), create new node
-			BTreeNode y = readNode(x.getChild(i));
+			// case where NFNode has children
+			BTreeNode childOfNFNode = readNode(nFNode.getChild(NFNode_Keys));
+			int childOfNFNode_Keys = childOfNFNode.getNumKeys();
 			
-			// if amount of keys in child node == 2t - 1
-			if(y.getNumKeys() == (2 * degree - 1)) {
+			// if max # of keys reached in child node
+			if (childOfNFNode_Keys == (2 * degree - 1)){
 				
-				//System.out.println("2 " + x.getOffset() + "\n");
+				// while more than 0 keys in child node and inserted key is less than last key in child node
+				while(childOfNFNode_Keys > 0 && insertedKey.compareTo(childOfNFNode.getKey(childOfNFNode_Keys - 1)) < 0)
+					// decrement key count in child node
+					childOfNFNode_Keys--;
 				
-				// Same error checking as above but for child node
-				int j = y.getNumKeys();
-				
-				while(j > 0 && childKey.compareTo(y.getKey(j - 1)) < 0)
-					j--;
-				
-				if(j > 0 && childKey.compareTo(y.getKey(j - 1)) == 0) {
-					y.getKey(j - 1).incrementFrequency();
+				//if more than 0 keys in child node and inserted key is equal to last key in child node
+				if(childOfNFNode_Keys > 0 && insertedKey.compareTo(childOfNFNode.getKey(childOfNFNode_Keys - 1)) == 0) {
+					// increase frequency of last key in child node
+					childOfNFNode.getKey(childOfNFNode_Keys - 1).incrementFrequency();
 					
-					// write child node
-					writeNode(y, y.getOffset());
-				}
+					// write child node at offset
+					writeNode(childOfNFNode, childOfNFNode.getOffset());
 				
-				else {
-					// splitTree(x, i, child node)
-					splitTree(x, i, y);
+				// case for when key is greater than last key in child node (splitTree)
+				} else {
+					// split tree from last key in nFNode to child node
+					splitTree(nFNode, NFNode_Keys, childOfNFNode);
 				
-					// if key > key of node at i, increment i
-					if(childKey.compareTo(x.getKey(i)) > 0)
-						i++;
+					// if inserted key > key of node at last key in nFNode, increment key count
+					if(insertedKey.compareTo(nFNode.getKey(NFNode_Keys)) > 0) {
+						NFNode_Keys++;
+					}
 				}
-			} else if(y.getNumKeys() < (2 * degree - 1)) {
-				// insertNF(child node, key)
-				BTreeNode childNode = readNode(x.getChild(i));
+			}	
+			// recursive call inserts key into child of full nFNode while keys in child are less than max
+			insertNF(readNode(nFNode.getChild(NFNode_Keys)), key);
 			
-				//System.out.println(x.getChild(i) + "\n");
-				insertNF(childNode, key);
-				//System.out.println(x.getChild(i)+ "\n");
-			} else System.out.println("Failure in max keys of child node");
+			//System.out.println((2 * degree - 1) + " max vs keys in parent: " + NFNode_Keys);
+			//System.out.println((2 * degree - 1) + " max vs keys in child : " + childOfNFNode_Keys);
+
 		}
 	}
 
@@ -385,11 +381,6 @@ public class BTree {
 
 		try {
 			randomAF.seek(fileOffset);
-			
-			// Set number of keys, parent, and leaf status
-			readData.setNumKeys(randomAF.readInt());
-			readData.setParent(randomAF.readInt());
-			readData.setLeafStatus(randomAF.readBoolean());
 
 			// read nodes from 0 to max keys
 			for (count = 0; count < (2 * degree - 1); count++) {

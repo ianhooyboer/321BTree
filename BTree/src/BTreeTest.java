@@ -15,12 +15,12 @@ public class BTreeTest {
 	public static void main(String[] args) {
 		String filename = "myTest.txt";
 		File file = new File(filename);
-		int degree = 3;
+		int degree = 5;
 		boolean useCache = true;
-		int cacheSize = 1000;
+		int cacheSize = 10000;
 		int sequenceLength = 5;
 		int numElementsToAdd = 1;
-
+		
 		BTree myBTree = new BTree(degree, file, useCache, cacheSize);
 		BTreeCache cache = new BTreeCache(cacheSize);
 		DNAParser testParser = new DNAParser(sequenceLength);
@@ -39,9 +39,11 @@ public class BTreeTest {
 			 * 
 			 * At the time of writing, the BTree breaks down about 9-12 elements.   
 			 * 		-Ian
+			 * 
+			 * 3 May 18 - >= 26 numElementsToAdd intermittent, stack overflow at 29 --Eric
 			 */
 			
-			numElementsToAdd = 6; // for testing, modify this number
+			numElementsToAdd = 25; // for testing, modify this number
 			
 			System.out.println("|Degree = " + degree + "|\t|Min # of children = " + degree + "|\t|Max # of children = " + (2 * degree) +
 					"|\t|Max # of keys = " + (2 * degree - 1) + "|\t|Min number of keys = " + (degree - 1) + "|\t|Height = " 
@@ -61,6 +63,8 @@ public class BTreeTest {
 			System.out.print("Cache Hits: " + cache.getHits() + "\n");
 			System.out.print("Cache Misses: " + cache.getMisses() + "\n");
 			System.out.print("Cache Ratio: " + cache.getHitRatio());
+			
+
 
 		} catch (Exception e) {
 			System.err.println(e.getMessage());

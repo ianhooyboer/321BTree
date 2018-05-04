@@ -81,9 +81,8 @@ public class BTreeNode {
 
 	// key mutators
 	public TreeObject getKey(int k) {
-		TreeObject retVal = keys.get(k);
 		//System.out.println(numKeys + " [" + retVal.getData() + "]");
-		return retVal;
+		return keys.get(k);
 	}
 
 	public LinkedList<TreeObject> getKeys() {
