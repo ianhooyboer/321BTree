@@ -77,7 +77,14 @@ public class GeneBankSearch {
 					System.out.println(treeFromFile);
 					System.exit(-1);					
 				}else {
-					treeFromFile.keySearch(root, parser.convertToKey(next));
+					long findMe = parser.convertToKey(next);
+					TreeObject found = treeFromFile.keySearch(root, findMe);
+					if (found != null) {
+						System.out.println("Found " + found.getFrequency() + " occurences of key: " + found.getData());
+					}else {
+						System.out.println("Key: " + findMe + " was not found");
+					}
+					
 				}				
 			}
 			
