@@ -75,7 +75,7 @@ public class GeneBankCreateBTree {
 			try {
 				long d = myParser.convertToKey(s);
 //				System.out.println(d + "\t" + myParser.longToSubSequence(d));
-				myBTree.insert(d);
+				myBTree.insert(myBTree, d);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
 				System.exit(-1);
@@ -98,7 +98,7 @@ public class GeneBankCreateBTree {
 	 */
 	private static void testArgs() {
 		String buf = "";
-		buf += (useCache == true) ? "Using cache " : "Not using cache ";
+		buf += (useCache == true) ? "Using cache " : "Not using cache";
 		buf += (useCache == true) ? "of size " + cacheSize : "";
 		buf += " for a tree of degree of " + degree + ". ";
 		buf += "Reading from a file: " + gbkFile.getName() + ",\n";

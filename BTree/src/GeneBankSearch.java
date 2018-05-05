@@ -112,7 +112,7 @@ public class GeneBankSearch {
 	 */
 	private static void testArgs() {
 		String buf = "";
-		buf += (useCache == true) ? "Using cache " : "Not using cache ";
+		buf += (useCache == true) ? "Using cache " : "Not using cache";
 		buf += (useCache == true) ? "of size " + cacheSize : "";
 		buf += " for a tree of degree of " + treeFromFile.getDegree() + ". ";
 		buf += "Reading from a file: " + BTreeFile.getName() + ",\n";

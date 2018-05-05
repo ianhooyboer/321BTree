@@ -134,7 +134,7 @@ public class BTree {
 		if (i <= x.getNumKeys() && key.compareTo(x.getKey(i)) == 0) {
 			return x.getKey(i);
 		}
-		if (x.isLeaf()) {
+		else if (x.isLeaf()) {
 			return null;
 		} else {
 			return keySearch(readNode(x.getChild(i)), k);
@@ -151,7 +151,7 @@ public class BTree {
 	 *            - key within the node
 	 * @throws IOException
 	 */
-	public void insert(long k) throws IOException {// TODO not tested
+	public void insert(BTree T, long k) throws IOException {// TODO not tested
 		BTreeNode r = root;
 		int keyCount = r.getNumKeys();
 	
@@ -178,12 +178,14 @@ public class BTree {
 				s.setLeafStatus(false);
 				s.childAddToRear(r.getOffset());
 				
-				// split tree and insert key to non full node
+				// split tree
 				splitTree(s, 0, r);
 				
+				//insert key to non full node
 				insertNF(s, k);
 			}
-		} else insertNF(r, k);  // else insert key at non full root
+		// else insert key at non full root
+		} else insertNF(r, k); 
 	}
 
 	/**
@@ -205,7 +207,7 @@ public class BTree {
 	 *				- x's ith child node 
 	 */
 	public void splitTree(BTreeNode x, int i, BTreeNode y) throws IOException { // TODO not tested
-		BTreeNode z = new BTreeNode();				// New child of x
+		BTreeNode z = new BTreeNode();				
 	
 		z.setLeafStatus(y.isLeaf());
 		z.setParent(y.getParent());
@@ -283,7 +285,35 @@ public class BTree {
 	 * @throws IOException
 	 */
 	public void insertNF(BTreeNode x, long key) throws IOException {
-	/*	int numKeys = x.getNumKeys();
+/*		int numKeys = x.getNumKeys();
+		TreeObject keyToInsert = new TreeObject(key);
+		
+		if(x.isLeaf()) {
+			while(numKeys > 0 && keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0) {
+				x.addKeyToRear(keyToInsert);
+				numKeys--;
+			}
+			key = keyToInsert.getData();
+			x.setNumKeys(x.getNumKeys() + 1);
+			writeNode(x, x.getOffset());
+			
+		}
+		else {
+			while(numKeys > 0 && keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0) {
+				numKeys--;
+			}
+			numKeys++;
+			BTreeNode y = readNode(x.getChild(numKeys));
+			if(y.getNumKeys() == (2 * degree - 1)) {
+				splitTree(x, numKeys);
+				if(keyToInsert.compareTo(x.getKey(numKeys - 1)) > 0)
+						numKeys++;
+			}
+			insertNF(readNode(x.getChild(numKeys)), key);
+		}
+		
+	}
+		/*int numKeys = x.getNumKeys();
 		TreeObject keyToInsert = new TreeObject(key);
 
 		// x is not full
@@ -311,7 +341,13 @@ public class BTree {
 		}
 		
 		// x is full
-		else { 
+		else 
+			insert(keyToInsert.getData());
+	}
+			
+	
+	
+	/*
 			BTreeNode y = readNode(x.getChild(numKeys));
 			// Compare keys
 			// keyToInsert is less than last x key
@@ -341,7 +377,7 @@ public class BTree {
 				}
 			}
 		}
-	}*/
+	}
 
 	/**
 	 * Helper method for insertNF
@@ -488,32 +524,31 @@ public class BTree {
 			randomAF.seek(fileOffset);
 
 			// read nodes from 0 to max keys
-			for (count = 0; count < (2 * degree - 1); count++) {
+			for(count = 0; count < (2 * degree - 1); count++) {
 
-				// If count is less than number of keys in node
-				if (count < readData.getNumKeys()) {
-
-					// read key data and frequency and add key to rear
-					nodeObject = new TreeObject(randomAF.readLong(), randomAF.readInt());
-					readData.addKeyToRear(nodeObject);
-				}
-				
 				// If count is less than number of keys in node and not leaf
-				if (count < readData.getNumKeys() + 1 && !readData.isLeaf()) {
+				if(count < readData.getNumKeys() + 1 && !readData.isLeaf()) {
 					readData.childAddToRear(randomAF.readInt());
 				}
 				
 				// If count is greater/equal to number of keys in node or leaf
-				else if (count >= readData.getNumKeys() + 1 || readData.isLeaf()) {
+				else if(count >= readData.getNumKeys() + 1 || readData.isLeaf()) {
 					randomAF.seek(randomAF.getFilePointer() + KEY_SIZE);
+				}
+				
+				// If count is less than number of keys in node
+				if(count < readData.getNumKeys()) {
+					// read key data and frequency and add key to rear
+					nodeObject = new TreeObject(randomAF.readLong(), randomAF.readInt());
+					readData.addKeyToRear(nodeObject);
 				}
 			}
 
 			// If count equals number of keys and is not a leaf
-			if (count == readData.getNumKeys() && !readData.isLeaf()) {
+			if(count == readData.getNumKeys() && !readData.isLeaf()) {
 				readData.childAddToRear(randomAF.readInt());
 			}
-		} catch (IOException e) {
+		} catch(IOException e) {
 			e.printStackTrace();
 			System.exit(-1);
 		}
@@ -532,7 +567,7 @@ public class BTree {
 	public void writeNode(BTreeNode writeData, int fileOffset) throws IOException {
 	
 		// If using cache
-		if (cache != null) {
+		if(cache != null) {
 			BTreeNode cachedNode = cache.addNode(writeData, fileOffset);
 			
 			// see if cached node exists

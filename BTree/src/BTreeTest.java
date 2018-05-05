@@ -48,7 +48,7 @@ public class BTreeTest {
 						
 			for (String s : ssG.getSSs()) {
 				long l = testParser.convertToKey(s);
-				myBTree.insert(l);
+				myBTree.insert(myBTree, l);
 			}
 
 			
