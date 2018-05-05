@@ -14,7 +14,7 @@ public class BTreeTest {
 	public static void main(String[] args) {
 		String filename = "myTest.txt";
 		File file = new File(filename);
-		int degree = 5;
+		int degree = 2;
 		boolean useCache = false;
 		int cacheSize = 10000;
 		int sequenceLength = 2;
@@ -38,7 +38,7 @@ public class BTreeTest {
 			 * 
 			 * 3 May 18 - >= 26 numElementsToAdd intermittent, stack overflow at 29 --Eric
 			 */
-			numElementsToAdd = 35; // for testing, modify these number
+			numElementsToAdd = 5; // for testing, modify these number
 			
 			System.out.println("|Degree = " + degree + "|\t|Min # of children = " + degree + "|\t|Max # of children = " + (2 * degree) +
 					"|\t|Max # of keys = " + (2 * degree - 1) + "|\t|Min number of keys = " + (degree - 1) + "|\t|Height = " 

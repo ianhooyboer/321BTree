@@ -1,4 +1,3 @@
-
 // -------------------Libraries-------------------
 import java.io.File;
 import java.io.IOException;
@@ -29,7 +28,6 @@ public class GeneBankCreateBTree {
 	private static File fileOut;
 
 	public static void main(String[] args) {
-		// Process Arguments (we will assume that cache is implemented for now)
 		if (args.length == 5 || args.length == 6) {
 			try {
 				useCache = (Integer.parseInt(args[0]) == 1) ? true : false;
@@ -56,12 +54,7 @@ public class GeneBankCreateBTree {
 		} else {
 			exitWithUsage();
 		}
-
-		testArgs();
-
-		// If the name of the GeneBank file is xyz.gbk, the sequence length is k, the
-		// BTree degree
-		// is t, then the name of the btree file should be: xyz.gbk.btree.data.k.t
+		
 		String fileOutName = gbkFile.getName();
 		fileOutName += ".btree.data.";
 		fileOutName += sequenceLength + ".";
@@ -74,7 +67,6 @@ public class GeneBankCreateBTree {
 		for (String s : myParser.getSSs()) {
 			try {
 				long d = myParser.convertToKey(s);
-//				System.out.println(d + "\t" + myParser.longToSubSequence(d));
 				myBTree.insert(myBTree, d);
 			} catch (NumberFormatException e) {
 				e.printStackTrace();
@@ -84,13 +76,13 @@ public class GeneBankCreateBTree {
 				System.exit(-1);
 			}
 		}
-		
+
 		if (debugLevel == 1) {
 			myBTree.dumpTree();
-		}else {
-			System.out.println(myBTree.toString());
+		} else {
+			testArgs();
+			System.err.println("\nWriting BTree file: " + fileOut.getName());
 		}
-//		myParser.dumpParser();
 	}
 
 	/**
@@ -105,7 +97,7 @@ public class GeneBankCreateBTree {
 		buf += "generating sequences of size: " + sequenceLength + ", ";
 		buf += (debugLevel == -1) ? " with no debug level." : "with debug level: " + debugLevel;
 
-		System.out.println(buf);
+		System.err.println(buf);
 	}
 
 	/**

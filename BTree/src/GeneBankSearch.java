@@ -24,7 +24,7 @@ public class GeneBankSearch {
 	private static File QueryFile; // file with all possible sequences of specified length (provided)
 	private static int cacheSize;
 	private static int debugLevel = 0;
-	
+
 	private static BTree treeFromFile;
 
 	public static void main(String[] args) {
@@ -49,67 +49,48 @@ public class GeneBankSearch {
 				exitWithUsage();
 			}
 
-		} else
+		} else {
 			exitWithUsage();
-		
-		
-		
-		
-		
-		treeFromFile = new BTree(BTreeFile);	
+		}
+
+		treeFromFile = new BTree(BTreeFile);
 		BTreeNode root = treeFromFile.getRoot();
-		
-		testArgs();
-		
-		
-		
+
 		DNAParser parser = new DNAParser(treeFromFile.getSequenceLength());
 		try {
 			Scanner queryScan = new Scanner(QueryFile);
-			
+
 			while (queryScan.hasNextLine()) {
 				String next = queryScan.nextLine();
-				
-//				System.out.println("Searching for " + next + "(" + parser.convertToKey(next) + ")");
-				
+
 				if (root.getKeys().isEmpty()) {
 					System.err.println("Root has no keys");
 					System.out.println(treeFromFile);
-					System.exit(-1);					
-				}else {
+					System.exit(-1);
+				} else {
 					long findMe = parser.convertToKey(next);
 					TreeObject found = treeFromFile.keySearch(root, findMe);
 					if (found != null) {
 						System.out.println("Found " + found.getFrequency() + " occurences of key: " + found.getData());
-					}else {
+					} else {
 						System.out.println("Key: " + findMe + " was not found");
 					}
-					
-				}				
+
+				}
 			}
-			
+
 			queryScan.close();
-			
+
 		} catch (FileNotFoundException e) {
 			System.err.println("File: " + QueryFile.getName() + " not found.\n");
 			System.exit(-1);
 		}
-		
-		
-
-		// get degree and subsequence length from BTree file
-		// - write degree as first int in file or first item in node = degree
-
-		// subsequence length - check length of first subsequence. subLength should be
-		// same
-		// in meta file, query file
-
 	}
 
-	
 	/**
 	 * Prints out current args, for testing
 	 */
+	@SuppressWarnings("unused")
 	private static void testArgs() {
 		String buf = "";
 		buf += (useCache == true) ? "Using cache " : "Not using cache";
@@ -121,7 +102,7 @@ public class GeneBankSearch {
 
 		System.out.println(buf);
 	}
-	
+
 	private static void exitWithUsage() {
 		System.err.println("Usage is as follows:");
 		System.err.println(
