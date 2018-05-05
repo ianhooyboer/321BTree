@@ -79,7 +79,18 @@ PROGRAM DESIGN AND IMPORTANT CONCEPTS:
  splitTree, insertNF, readNode, writeNode, writeToFile (a writeNode helper method), read and write metadata, dump file and string,
  and a toString.  
 
- // Descriptors for the other classes
+ The DNAParser is an object that takes a file and sequence length and parses the file.  It then contains an arrayList of all of the
+ sequences of requested length.  The DNAParser object is also where the conversion methods were written.  These methods converted a 
+ string into an equivalent binary long representation.  Finally, it had methods to retrieve the stored list of subsequences, and 
+ a testing method that would dump the contents of the parser to a file.
+ 
+ As for the driver classes, GeneBankCreateBTree and GeneBankSearch, they were designed according to the project specifications.  
+ GeneBankCreateBTree would sort through the arguments and create parser and BTree objects.  Then it would iterate through each 
+ of the subsequences stored in the parser and add them to the BTree.  Finally, it would write the BTree to a binary file using an 
+ in-order traversal.
+ 
+ GeneBankSearch would handle the binary file that resulted from GeneBankCreateBTree.  Using a provided query file, it would search for 
+ keys and report on whether they were stored in the tree or not.
 
 TESTING:
 
@@ -87,7 +98,8 @@ TESTING:
  glimpse of what structure is being created, if nodes are being offset, if keys are populating the block, the frequency of those keys, 
  and any child node offsets.  Lastly, it tested the cache hits, misses, and ratio.
 
- // Describe testing for parser and other classes
+ The ParserTest class was used early on to verify that the correct number of subsequences were being generated, that they were all accessable,
+ and that they were correct to the corresponding GBK file.
 
 DISCUSSION:
 
