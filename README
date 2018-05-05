@@ -1,0 +1,107 @@
+************************************************
+* BTree
+* CS 321-2
+* 5 May 2018
+* Ian Hooyboer, Parker Crawford, Eric Hieronymus
+************************************************
+
+OVERVIEW:
+
+ The BTree project capitalizes on the use of a B-Tree structure to store and analyze
+ genome sequences from a gbk file.  Components of the project were: to parse information
+ from a file to harvest DNA sequences from, to construct a BTree class that was able to 
+ access that data and store it, to utilize a cache for quicker file access, and to then
+ create the file structure and search it with our driver classes.
+
+
+INCLUDED FILES:
+
+ TreeObject.java - source file
+ BTreeNode.java - source file
+ BTree.java - source file
+ BTreeCache.java	- source file
+ SubSequenceGenerator.java - source file
+ DNAParser - source file
+
+ BTreeTest.java - test class file
+ ParserTest.java - test class file
+
+ GeneBankCreateBTree.java - driver class file
+ GeneBankSearch.java - driver class file
+
+ README 
+
+COMPILING AND RUNNING:
+
+ From the directory containing all source files, compile the
+ test suites and driver classes (and all dependencies) with the commands:
+ $ javac BTreeTest
+ $ javac ParserTest
+ $ javac GeneBankCreateBTree
+ $ javac GeneBankSearch
+
+ The test classes do not require command line arguments and may be run after compilation:
+ $ java BTreeTest
+ $ java ParserTest
+
+ The driver class requires command line arguments for input:
+ $ java GeneBankCreateBTree <0/1(no/with Cache)> <degree> <gbk file> <sequence length> <cache size> [<debug level>]
+ $ java GeneBankSearch <0/1(no/with Cache)> <btree file> <query file> <cache size> [<debug level>]
+
+ For example:
+ $ java GeneBankCreateBTree 1 3 test1.gbk 13 100 1
+ $ java GeneBankSearch 0 BTreeFile.txt query.txt 0 0
+
+ Console output for BTreeTest will present input argument data to test functionality:
+ For example: 
+ |Degree = 3| |Min # of children = 3| |Max # of children = 6| |Max # of keys = 5| |Min number of keys = 2| |Height = 1|
+
+ After that, the console will display each nodes offset, keys and their frequencies, and their children.
+
+ GeneBankCreateBTree writes a file with a BTree and displays information to the console based on user choices:
+	Not using cache for a tree of degree of 3. Reading from a file: test1.gbk,
+	generating sequences of size: 5, with debug level: 0
+
+	Writing BTree file: test1.gbk.btree.data.5.3
+
+ GeneBankSearch searches the BTree file and displays the appropriate node and root information to the console.
+
+PROGRAM DESIGN AND IMPORTANT CONCEPTS:
+
+ The project used a linked-list implementation due to its ease with list traversal and unconstrained node size.  In retrospect,
+ an arrayList implementation would have been more suitable due to the fixed size of the nodes and thus memory blocks.  However,
+ for methods, Linked-List proved easier to construct.  
+ 
+ The project uses a BTreeNode class and TreeObject class to easily call to the BTree class.  The reason for using separate classes 
+ was for cross access to multiple driver and test classes.
+
+ Within BTree, the major aspects of the class were two constructors (one for major aspects of each driver class), keySearch, insert, 
+ splitTree, insertNF, readNode, writeNode, writeToFile (a writeNode helper method), read and write metadata, dump file and string,
+ and a toString.  
+
+ // Descriptors for the other classes
+
+TESTING:
+
+ BTreeTest first tested user parameters and displayed the pertinent information of the BTree to the console.  Then, it provided a 
+ glimpse of what structure is being created, if nodes are being offset, if keys are populating the block, the frequency of those keys, 
+ and any child node offsets.  Lastly, it tested the cache hits, misses, and ratio.
+
+ // Describe testing for parser and other classes
+
+DISCUSSION:
+
+ The largest and most taxing issue with this project was ensuring BTree functionality.  The internal algorithms (the pseudocode of which
+ we referenced from:
+ 	Cormen, T. H., et al. 2009. Introduction to Algorithms (3rd edition). 492 - 496. MIT Press and McGraw-Hill. ISBN 0-262-03384-4.
+ proved intricate to convert from array to linked-list.  Based on the book, insert, insertNF, keySearch, and splitTree methods all seemed
+ to match the pseudo code.  When we got divergent results and poured through the code to see where we mistepped (even starting afresh and
+ too late attempting to switch to an arrayList implementation), we could not determine fully why things were going awry.  The rest of the 
+ project was put together well to meet the assignment parameters and the other source classes worked tremendously.  
+ 
+EXTRA CREDIT:
+
+ None
+
+
+----------------------------------------------------------------------------
