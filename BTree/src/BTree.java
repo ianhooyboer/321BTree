@@ -72,13 +72,12 @@ public class BTree {
 		
 		// set up new node in BTree
 		BTreeNode newNode = new BTreeNode();
-		newNode.setOffset(offsetFromRoot);
+		root = newNode; // newNode is the first root
+		root.setOffset(offsetFromRoot);
 		
 		// Add newNode to BTree, is leaf, with 0 keys
 		newNode.setLeafStatus(true);
 		newNode.setNumKeys(0);
-		
-		root = newNode; // newNode is the first root
 		
 		try {
 			if(file.exists()) file.delete();    			// clear file if exists
@@ -101,18 +100,14 @@ public class BTree {
 	public BTree(File BTreeFile) {
 		try {
 			this.randomAF = new RandomAccessFile(BTreeFile, "r");
-			
-			readMetadata();
-			
-			offsetFromRoot =  (KEY_SIZE * (2 * degree));			
-			root = readNode(offsetFromRoot);
-						
-			
+
 		} catch(FileNotFoundException e) {
 			e.printStackTrace(System.err);
 			System.err.println("File: " + BTreeFile.getName() + " not found.\n");
 			System.exit(-1);
 		}
+		readMetadata();	
+		root = readNode(offsetFromRoot);
 	}
 
 	/**
@@ -288,64 +283,65 @@ public class BTree {
 	 * @throws IOException
 	 */
 	public void insertNF(BTreeNode x, long key) throws IOException {
-		int numKeys = x.getNumKeys();
+	/*	int numKeys = x.getNumKeys();
 		TreeObject keyToInsert = new TreeObject(key);
 
 		// x is not full
 		if(numKeys < (2 * degree - 1)) {
 			
 			// Compare keys
-			// keyToInsert is less than last NFNode key
-			while(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0)) {
+			// keyToInsert is less than last x key
+			if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0)) {
 				// insert key before compared key and increment numKeys
 				x.addKeyAtNode((numKeys), keyToInsert);
 				numKeys++;
 			}
-			// keyToInsert is equal to last NFNode key
-			if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) == 0)) {
+			// keyToInsert is equal to last x key
+			else if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) == 0)) {
 				x.getKey(numKeys - 1).incrementFrequency();
 			}
-			// keyToInsert is greater than last NFNode key
+			// keyToInsert is greater than last x key
 			else {
 				// insert key to end and increment numKeys
 				x.addKeyToRear(keyToInsert);
-				x.setNumKeys(numKeys + 1);		
+				//x.setNumKeys(numKeys + 1);
+				numKeys++;
 			}
 			writeNode(x, x.getOffset());
 		}
 		
 		// x is full
 		else { 
+			BTreeNode y = readNode(x.getChild(numKeys));
 			// Compare keys
-			// keyToInsert is less than last NFNode key
-			while(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0)) {
-				// insert key before compared key and increment numKeys
+			// keyToInsert is less than last x key
+			if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) < 0)) {
+				// insert key before compared key
 				x.addKeyAtNode((numKeys), keyToInsert);
-				numKeys++;
+				// add last key to child node
+				y.addKeyToRear(x.getKey(numKeys - 1));
+				// increment numKeys
+				numKeys--;
 			}
-			// keyToInsert is equal to last NFNode key
-			if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) == 0)) {
+			// keyToInsert is equal to last x key
+			else if(numKeys > 0 && (keyToInsert.compareTo(x.getKey(numKeys - 1)) == 0)) {
 				x.getKey(numKeys - 1).incrementFrequency();
 				writeNode(x,x.getOffset());
 			}
-			// keyToInsert is greater than last NFNode key
+			// keyToInsert is greater than last x key
 			else {			
 				// if x is a leaf
-				BTreeNode y = readNode(x.getChild(numKeys));
 				if(x.isLeaf()) {
-					// parent node is full
-					if(x.getParentNode(numKeys) == (2 * degree - 1)) {
+					// child node is full
+					if(y.getParentNode(numKeys) == (2 * degree - 1)) {
 						splitTree(x, numKeys, y);
-						if(keyToInsert.compareTo(x.getKey(numKeys)) > 0)
-							numKeys--;
 					} else
 						// insertNF to parent node
 						insertNF(readNode(x.getParentNode(numKeys)), keyToInsert.getData());
 				}
-				insertNF(readNode(y.getChild(y.getNumKeys())), keyToInsert.getData());
 			}
 		}
-	}
+	}*/
 
 	/**
 	 * Helper method for insertNF
@@ -374,15 +370,15 @@ public class BTree {
 			NFNode.addKeyToRear(keyToInsert);
 			NFNode.setNumKeys(NFNode.getNumKeys() + 1);		
 		}
-	}
-		/*
-		// set keysInNFNode to number of keys in nonFullNode, declare tree object with key
+	}*/
+
+		// set numKeys to number of keys in x, declare tree object with key
 		int numKeys = x.getNumKeys();
 		TreeObject insertedKey = new TreeObject(key);
 		
 		//System.out.println("\t\t1: " + NFNode_Keys);
 		
-		// if nFNode is a leaf node
+		// if x is a leaf node
 		if(x.isLeaf()) {
 			
 			//if keys exist
@@ -390,7 +386,7 @@ public class BTree {
 				
 				//System.out.println("\t\t2: " + NFNode_Keys);
 				
-				// case for nFNode key being less than inserted Key
+				// case for x key being less than inserted Key
 				// while more than 0 keys in nFNode and insertedKey is less than last key in nFNode
 				while(numKeys > 0 && insertedKey.compareTo(x.getKey(numKeys - 1)) < 0) {
 					// number of keys in nFNode decrease
@@ -398,25 +394,25 @@ public class BTree {
 				}
 			}
 
-			// case for nFNode key and inserted Key being equal
-			// if more than 0 keys in nFNode and inserted Key and last key in nFNode are equal
+			// case for x key and inserted Key being equal
+			// if more than 0 keys in x and inserted Key and last key in x are equal
 			if(numKeys > 0 && insertedKey.compareTo(x.getKey(numKeys - 1)) == 0)
 				// increment frequency of same key in node
 				x.getKey(numKeys - 1).incrementFrequency();
 			
 			// case for inserted Key greater
 			else {
-				// add inserted Key to end of nFNode
+				// add inserted Key to end of x
 				x.addKeyAtNode(numKeys, insertedKey);
 				
-				// increase number of keys in nFNode
+				// increase number of keys in x
 				x.setNumKeys(x.getNumKeys() + 1);
 			}
 		
 			// writeNode to file
 			writeNode(x, x.getOffset());
 		}
-		// for when nFNode not a leaf node
+		// for when x not a leaf node
 		else {
 			// same condition checks and adjustments for node
 			while(numKeys > 0 && insertedKey.compareTo(x.getKey(numKeys - 1)) < 0)
@@ -427,7 +423,7 @@ public class BTree {
 				writeNode(x, x.getOffset());
 			}
 			
-			// case where NFNode has children
+			// case where x has children
 			BTreeNode y = readNode(x.getChild(numKeys));
 			int childKeys = y.getNumKeys();
 			
@@ -449,7 +445,7 @@ public class BTree {
 				
 				// case for when key is greater than last key in child node (splitTree)
 				} else {
-					// split tree from last key in nFNode to child node
+					// split tree from last key in x to child node
 					splitTree(x, numKeys, y);
 				
 					// if inserted key > key of node at last key in nFNode, increment key count
@@ -458,7 +454,7 @@ public class BTree {
 					}
 				}
 			}	
-			// recursive call inserts key into child of full nFNode while keys in child are less than max
+			// recursive call inserts key into child of full x while keys in child are less than max
 			insertNF(readNode(x.getChild(numKeys)), key);
 			
 			//System.out.println((2 * degree - 1) + " max vs keys in parent: " + NFNode_Keys);
@@ -566,24 +562,24 @@ public class BTree {
 			randomAF.writeLong(writeData.getParent());
 
 			// write nodes from 0 to max keys
-			for (count = 0; count < (2 * degree - 1); count++) {
-
-				// If count is less than number of keys in node
-				if (count < writeData.getNumKeys()) {
-					// get key data and frequency
-					randomAF.writeLong(writeData.getKey(count).getData());
-					randomAF.writeLong(writeData.getKey(count).getFrequency());
-				}
-
+			for(count = 0; count < (2 * degree - 1); count++) {
 				// If count is less than number of keys in node and not leaf
-				if (count < writeData.getNumKeys() && !writeData.isLeaf()) {
+				if((count < writeData.getNumKeys() + 1) && (!writeData.isLeaf())) {
 					randomAF.writeLong(writeData.getChild(count));
 				}
 
 				// If count is greater/equal to number of keys in node or leaf
-				else if (count >= writeData.getNumKeys() || writeData.isLeaf()) {
+				else if((count >= writeData.getNumKeys() + 1) || (writeData.isLeaf())) {
 					randomAF.writeLong(0);
 				}
+				
+				// If count is less than number of keys in node
+				if(count < writeData.getNumKeys()) {
+					// get key data and frequency
+					randomAF.writeLong(writeData.getKey(count).getData());
+					randomAF.writeLong(writeData.getKey(count).getFrequency());
+				} else if(count >= writeData.getNumKeys() || writeData.isLeaf())
+					randomAF.writeLong(0);
 			}
 
 			// If count equals number of keys and is not a leaf
@@ -716,6 +712,4 @@ public class BTree {
 			System.exit(-1);
 		}
 	}
-
-	
 }
