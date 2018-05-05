@@ -181,7 +181,7 @@ public class BTree {
 				
 				// set inserted node and add child to root offset
 				s.setLeafStatus(false);
-				s.addChildToRear(r.getOffset());
+				s.childAddToRear(r.getOffset());
 				
 				// split tree and insert key to non full node
 				splitTree(s, 0, r);
@@ -228,7 +228,7 @@ public class BTree {
 		if(!y.isLeaf()) {
 			// remove a child from y and add to z from 0 to min # of children
 			for(int j = 0; j < degree; j++) {
-				z.addChildToRear(y.removeChild(degree));
+				z.childAddToRear(y.removeChild(degree));
 			}
 		}
 		// Add key to x from ith child
@@ -247,7 +247,7 @@ public class BTree {
 				//System.out.println(i + " " + blockInsert + "\n");
 				
 				z.setOffset(blockInsert);								// set offset of new child to new block
-				x.addChildAtNode(z.getOffset(), i + 1);					// add ith + 1 child to x from z offset
+				x.childAddAtIndex(z.getOffset(), i + 1);					// add ith + 1 child to x from z offset
 				writeNode(z, blockInsert);								// write new child in new block
 				
 				writeNode(x, offsetFromRoot);							// write parent node to offset from root
@@ -263,7 +263,7 @@ public class BTree {
 				z.setOffset(blockInsert);								// set new child offset
 				
 				writeNode(z, blockInsert);							// write new child in new block
-				x.addChildAtNode(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
+				x.childAddAtIndex(z.getOffset(), i + 1);				// add ith + 1 child to x from z offset
 				
 				writeNode(x, x.getOffset());						// write parent node at offset
 				blockInsert += nodeSize;								// add a node memory size to block
@@ -289,8 +289,77 @@ public class BTree {
 	 *            - key within the node
 	 * @throws IOException
 	 */
-	public void insertNF(BTreeNode nFNode, long key) throws IOException {
+	public void insertNF(BTreeNode x, long key) throws IOException {
+		int numKeys = x.getNumKeys();
+		TreeObject keyToInsert = new TreeObject(key);
 
+		// node is not full
+		if(numKeys < (2 * degree - 1)) {
+			keyCompare(x, numKeys, keyToInsert);
+			writeNode(x, x.getOffset());
+		}
+		
+		// node is full
+		else { 
+			// if NFNode is a leaf
+			if(x.isLeaf())
+				// parent node is full
+				if(x.getParentNode(numKeys) < (2 * degree - 1)) {
+					// create child node y
+					BTreeNode y = readNode(x.getChild(numKeys));
+					splitTree(x, numKeys, y);
+				}
+					
+					insertNF(readNode(x.getParentNode(numKeys)), keyToInsert.getData());
+		}
+
+			
+		else {
+			
+			
+		
+			// node is full
+				// Parent NF
+				// Parent F
+				// Child NF
+				// Child F
+			//NFNode is full
+				// Parent NF
+				// Parent F
+				// Child NF
+				// Child F
+		}
+	}
+	
+	/**
+	 * Helper method for insertNF
+	 * 
+	 * @param NFNode
+	 * @param numKeys
+	 * @param keyToInsert
+	 */
+	public void keyCompare(BTreeNode NFNode, int numKeys, TreeObject keyToInsert) {
+		// Compare keys
+		
+		// keyToInsert is less than last NFNode key
+		while(numKeys > 0 && (keyToInsert.compareTo(NFNode.getKey(numKeys - 1)) < 0)) {
+			// insert key before compared key and increment numKeys
+			NFNode.addKeyAtNode((numKeys - 2), keyToInsert);
+			NFNode.setNumKeys(NFNode.getNumKeys() + 1);
+			numKeys++;
+		}
+		// keyToInsert is equal to last NFNode key
+		if(numKeys > 0 && (keyToInsert.compareTo(NFNode.getKey(numKeys - 1)) == 0))
+			NFNode.getKey(numKeys - 1).incrementFrequency();
+
+		// keyToInsert is greater than last NFNode key
+		else {
+			// insert key to end and increment numKeys
+			NFNode.addKeyToRear(keyToInsert);
+			numKeys++;			
+		}
+	}
+		/*
 		// set keysInNFNode to number of keys in nonFullNode, declare tree object with key
 		int NFNode_Keys = nFNode.getNumKeys();
 		TreeObject insertedKey = new TreeObject(key);
@@ -419,7 +488,7 @@ public class BTree {
 				
 				// If count is less than number of keys in node and not leaf
 				if (count < readData.getNumKeys() + 1 && !readData.isLeaf()) {
-					readData.addChildToRear(randomAF.readInt());
+					readData.childAddToRear(randomAF.readInt());
 				}
 				
 				// If count is greater/equal to number of keys in node or leaf
@@ -430,7 +499,7 @@ public class BTree {
 
 			// If count equals number of keys and is not a leaf
 			if (count == readData.getNumKeys() && !readData.isLeaf()) {
-				readData.addChildToRear(randomAF.readInt());
+				readData.childAddToRear(randomAF.readInt());
 			}
 		} catch (IOException e) {
 			e.printStackTrace();

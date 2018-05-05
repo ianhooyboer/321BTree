@@ -24,6 +24,7 @@ public class BTreeNode {
 	private int parent;
 	private int degree;
 	private int ssLength;
+	private LinkedList<Integer> parentNode;
 	private LinkedList<Integer> children;
 	private LinkedList<TreeObject> keys;
 
@@ -31,6 +32,7 @@ public class BTreeNode {
 
 	public BTreeNode() {
 		parent = -1;
+		parentNode = new LinkedList<Integer>();
 		keys = new LinkedList<TreeObject>();
 		children = new LinkedList<Integer>();
 		numKeys = 0;
@@ -66,6 +68,10 @@ public class BTreeNode {
 	}
 
 	// parent mutators
+	public Integer getParentNode(int p) {
+		return parentNode.get(p);
+	}
+	
 	public int getParent() {
 		return parent;
 	}
@@ -81,6 +87,10 @@ public class BTreeNode {
 
 	public LinkedList<Integer> getChildren() {
 		return children;
+	}
+	
+	public LinkedList<Integer> getParents() {
+		return parentNode;
 	}
 
 	// key mutators
@@ -117,13 +127,22 @@ public class BTreeNode {
 			return false;
 		}
 	}
+	
+	// Parent nodes
+	public void parentAddToRear(int l) {
+		parentNode.add(l);
+	}
 
+	public void parentAddAtIndex(int ch, int c) {
+		parentNode.add(c, ch);
+	}
+	
 	// Children nodes
-	public void addChildToRear(int l) {
+	public void childAddToRear(int l) {
 		children.add(l);
 	}
 
-	public void addChildAtNode(int ch, int c) {
+	public void childAddAtIndex(int ch, int c) {
 		children.add(c, ch);
 	}
 
